@@ -1146,6 +1146,165 @@ function setupCommandHandlers(socket, number) {
       }
       
       switch(command) {
+          case 'song':
+case 'play':
+case 'audio':
+case 'ytmp3':
+    if (!args.length) {
+        await socket.sendMessage(sender, {
+            text: '❌ ERROR\n\n*Need YouTube URL or Song Title*'
+        }, { quoted: msg });
+        break;
+    }
+
+    const query = args.join(' ');
+    await socket.sendMessage(sender, { text: '🎧 සින්දුව තෝරන ගමන්...' });
+
+    try {
+        let searchData;
+
+        // Search logic using yts
+        if (query.match(/(youtube\.com|youtu\.be)/)) {
+            const match = query.match(/(?:v=|\/)([0-9A-Za-z_-]{11})/);
+            const videoId = match ? match[1] : null;
+            if (!videoId) throw new Error('Invalid YouTube URL');
+            searchData = await yts({ videoId });
+        } else {
+            const result = await yts(query);
+            if (!result.videos || result.videos.length === 0) {
+                await socket.sendMessage(sender, { text: '❌ NO RESULTS' }, { quoted: msg });
+                break;
+            }
+            searchData = result.videos[0];
+        }
+
+        const videoId = searchData.videoId;
+        const videoUrl = `https://youtu.be/${videoId}`;
+
+        // Fetching data from the New API
+        const apiUrl = `https://vajira-official-apis.vercel.app/api/ytmp3?apikey=vajira-3620yyk505-1779827683855&url=${videoUrl}`;
+        const apiRes = await axios.get(apiUrl);
+
+        if (!apiRes.data.status) {
+            throw new Error('API failed to fetch download links.');
+        }
+
+        const apiData = apiRes.data.data;
+        // Finding the 128kbps link specifically
+        const downloadObj = apiData.downloads.find(d => d.bitrate === '128kbps') || apiData.downloads[0];
+        const downloadLink = downloadObj.url;
+
+        const desc = `🍷 *𝗦𝗢𝗡𝗚* : _${apiData.title}_     
+╭─────────────────┄┄
+💠🍷 *𝗗ᴜʀᴀᴛɪᴏɴ ➟* _${apiData.timestamp}_
+💠👀 *𝗩ɪᴇᴡꜱ ➟* _${apiData.viewsFormatted}_
+💠📅 *𝗣ᴜʙʟɪꜱʜᴇᴅ ➟* _${apiData.ago}_
+💠🎤 *𝗖ʜᴀɴɴᴇʟ ➟* _${apiData.author?.name || 'N/A'}_
+╰──────────────────┉┉
+*⬇️ 𝗗𝗢𝗪𝗡𝗟𝗢𝗔𝗗 𝗢𝗣𝗧𝗜𝗢𝗡𝗦*
+
+*🔢 𝗥ᴇᴘʟʏ ᴡɪᴛʜ ᴀ 𝗡ᴜᴍʙᴇʀ 👇*
+
+*01 🎧 ❯❯ ᴀᴜᴅɪᴏ (ᴍᴘ3)*
+*02 📂 ❯❯ ᴅᴏᴄᴜᴍᴇɴᴛ (ғɪʟᴇ)*
+*03 🎤 ❯❯ ᴠᴏɪᴄᴇ (ᴘᴛᴛ)*
+`;
+
+        const sentMsg = await socket.sendMessage(sender, {
+            image: { url: apiData.thumbnails.default },
+            caption: desc
+        }, { quoted: msg });
+
+        const listener = async (update) => {
+            const mek = update.messages[0];
+            if (!mek?.message) return;
+
+            const ctx = mek.message.extendedTextMessage?.contextInfo;
+            if (!ctx || ctx.stanzaId !== sentMsg.key.id) return;
+
+            const text = mek.message.conversation || mek.message.extendedTextMessage?.text;
+            if (!['1', '2', '3'].includes(text)) return;
+            
+            // Validate sender to avoid others triggering the menu
+            if (mek.key.remoteJid !== sender) return;
+
+            socket.ev.off('messages.upsert', listener);
+            await socket.sendMessage(sender, { react: { text: '⬇️', key: mek.key } });
+
+            try {
+                const songTitle = apiData.title;
+                const fileName = songTitle.replace(/[^a-zA-Z0-9]/g, '_');
+
+                if (text === '1') {
+                    // MP3 Audio
+                    await socket.sendMessage(sender, {
+                        audio: { url: downloadLink },
+                        mimetype: 'audio/mpeg'
+                    }, { quoted: mek });
+
+                } else if (text === '2') {
+                    // Document File
+                    await socket.sendMessage(sender, {
+                        document: { url: downloadLink },
+                        mimetype: 'audio/mpeg',
+                        fileName: `${fileName}.mp3`,
+                        caption: songTitle
+                    }, { quoted: mek });
+
+                } else if (text === '3') {
+                    // PTT (Voice Note)
+                    await socket.sendMessage(sender, { react: { text: '🔄', key: mek.key } });
+                    
+                    const tmpDir = os.tmpdir();
+                    const inputPath = path.join(tmpDir, `${Date.now()}.mp3`);
+                    const outputPath = path.join(tmpDir, `${Date.now()}.ogg`);
+
+                    try {
+                        const audioRes = await axios.get(downloadLink, { responseType: 'arraybuffer' });
+                        fs.writeFileSync(inputPath, audioRes.data);
+
+                        await new Promise((resolve, reject) => {
+                            ffmpeg(inputPath)
+                                .toFormat('ogg')
+                                .audioCodec('libopus')
+                                .on('end', resolve)
+                                .on('error', reject)
+                                .save(outputPath);
+                        });
+
+                        await socket.sendMessage(sender, {
+                            audio: fs.readFileSync(outputPath),
+                            mimetype: 'audio/ogg; codecs=opus',
+                            ptt: true
+                        }, { quoted: mek });
+
+                    } catch (e) {
+                        // Fallback if FFmpeg fails
+                        await socket.sendMessage(sender, { 
+                            audio: { url: downloadLink }, 
+                            mimetype: 'audio/mpeg', 
+                            ptt: true 
+                        }, { quoted: mek });
+                    } finally {
+                        if (fs.existsSync(inputPath)) fs.unlinkSync(inputPath);
+                        if (fs.existsSync(outputPath)) fs.unlinkSync(outputPath);
+                    }
+                }
+
+                await socket.sendMessage(sender, { react: { text: '✅', key: mek.key } });
+
+            } catch (err) {
+                await socket.sendMessage(sender, { text: '❌ ERROR: ' + err.message }, { quoted: mek });
+            }
+        };
+
+        socket.ev.on('messages.upsert', listener);
+        setTimeout(() => { socket.ev.off('messages.upsert', listener); }, 300000);
+
+    } catch (err) {
+        await socket.sendMessage(sender, { text: '❌ ERROR\n\n' + err.message }, { quoted: msg });
+    }
+    break;
           case 'system': {
   try {
     const sanitized = (number || '').replace(/[^0-9]/g, '');

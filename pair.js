@@ -2630,8 +2630,8 @@ case 'alive': {
 
           // ✅ OWNER DETAILS
           const ownerName = "༺ ALONE X MD ꙰༻";
-          const ownerNumber = "94783731694","94781629812"; // without +
-          const displayNumber = "+94 78 373 1694",94781629812";
+          const ownerNumber = "94781629812"; // without +
+          const displayNumber = "+94 78 162 9812";
           const email = "owner@email.com"; // optional
 
           // ✅ VCARD

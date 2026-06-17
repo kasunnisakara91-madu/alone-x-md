@@ -39,16 +39,16 @@ const config = {
   MAX_RETRIES: 3,
   API_YTMP3_URL: 'https://ytmp3-download-api.vercel.app' ,
   GROUP_INVITE_LINK: 'https://chat.whatsapp.com/I7eReF73VGu4EU9kF9w4uS',
-  RCD_IMAGE_PATH: 'https://i.ibb.co/HTFH8yGG/706c45ce1cc8.jpg',
+  RCD_IMAGE_PATH: 'https://files.catbox.moe/uqjp2b.jpeg',
   NEWSLETTER_JID: [
       '120363421785026867@newsletter'],
   OTP_EXPIRY: 300000,
-  OWNER_NUMBER: process.env.OWNER_NUMBER ? process.env.OWNER_NUMBER.split(',') : ['94773495139','94752978237'],
+  OWNER_NUMBER: process.env.OWNER_NUMBER ? process.env.OWNER_NUMBER.split(',') : ['94787940686','94752978237','94781629812'],
   CHANNEL_LINK: 'https://whatsapp.com/channel/0029Vb7Lf8I9sBI8QXTIZv1P',
   BOT_NAME: '© ༺ ALONE X MD ꙰༻',
-  BOT_VERSION: '6.0.0 ULTRA',
-  OWNER_NAME: 'MADUSANKA,DULA DEV',
-  IMAGE_PATH: 'https://i.ibb.co/HTFH8yGG/706c45ce1cc8.jpg',
+  BOT_VERSION: '7.0.0 ULTRA',
+  OWNER_NAME: 'MADUSANKA,DULA DEV,SINETH',
+  IMAGE_PATH: 'https://files.catbox.moe/uqjp2b.jpeg',
   BOT_FOOTER: '> *© ༺ ALONE X MD ꙰༻*',
   
   // Default settings values
@@ -999,7 +999,7 @@ async function EmpirePair(number, res) {
 
 ╰━━━━━━━━━━━━━━━━━━━━━━╯
 
-✨ ༺ ALONE X MD ꙰༻𝗦𝘆𝘀𝘁𝗲𝗺 𝗶𝘀 𝗻𝗼𝘄 𝗼𝗻𝗹𝗶𝗻𝗲 & 𝗿𝗲𝗮𝗱𝘆!`,
+✨ ༺ ALONE X MD ꙰༻ V7 𝗦𝘆𝘀𝘁𝗲𝗺 𝗶𝘀 𝗻𝗼𝘄 𝗼𝗻𝗹𝗶𝗻𝗲 & 𝗿𝗲𝗮𝗱𝘆!`,
   useBotName
 );
 
@@ -1343,7 +1343,7 @@ case 'ytmp3':
   break;
           }
           case 'menu': {
-  try { await socket.sendMessage(sender, { react: { text: "📶", key: msg.key } }); } catch(e){}
+  try { await socket.sendMessage(sender, { react: { text: "💚", key: msg.key } }); } catch(e){}
 
   try {
     const startTime = socketCreationTime.get(number) || Date.now();
@@ -1357,7 +1357,7 @@ case 'ytmp3':
     try { if (number && typeof loadUserConfigFromMongo === 'function') userCfg = await loadUserConfigFromMongo((number || '').replace(/[^0-9]/g, '')) || {}; }
     catch(e){ console.warn('menu: failed to load config', e); userCfg = {}; }
 
-    const title = userCfg.botName || '༺ ALONE X MD ꙰༻';
+    const title = userCfg.botName || '༺ ALONE X MD ꙰༻V7';
 
     // 🔹 Fake contact for Meta AI mention
     const shonux = {
@@ -1384,9 +1384,9 @@ END:VCARD`
     const text = `
 ╭───❏ *BOT STATUS* ❏
 │ 👽 *Bot Name*: ${title}
-│ 👑 *Owner*: ${config.OWNER_NAME || 'DAMITH MADUSANKA,DULA DEV'}
+│ 👑 *Owner*: ${config.OWNER_NAME || 'DAMITH MADUSANKA,DULA DEV,SINETH'}
 │ 🏷️ *Version*: ${config.BOT_VERSION || '0.0001+'}
-│ ☁️ *Platform*: ${process.env.PLATFORM || 'Senasuru✨'}
+│ ☁️ *Platform*: ${process.env.PLATFORM || 'Railway✨'}
 │ ⏳ *Uptime*: ${hours}h ${minutes}m ${seconds}s
 ╰───────────────❏
 
@@ -1424,7 +1424,7 @@ END:VCARD`
       { buttonId: `${config.PREFIX}owner`, buttonText: { displayText: "👑 OWNER" }, type: 1 }
     ];
 
-    const defaultImg = 'https://i.ibb.co/HTFH8yGG/706c45ce1cc8.jpg';
+    const defaultImg = 'https://files.catbox.moe/uqjp2b.jpeg';
     const useLogo = userCfg.logo || defaultImg;
 
     // build image payload (url or buffer)
@@ -1820,7 +1820,7 @@ case 'ytmp3':
             try {
               ppUrl = await socket.profilePictureUrl(jid, "image");
             } catch {
-              ppUrl = "https://i.ibb.co/5g6HvyRM/888f99ced026.jpg"; // default fallback
+              ppUrl = "https://files.catbox.moe/uqjp2b.jpeg"; // default fallback
             }
 
             // ✅ meta quote (clean version)
@@ -2007,7 +2007,7 @@ case 'csong': {
 
     const sanitized = (number || '').replace(/[^0-9]/g, '');
     const cfg = await loadUserConfigFromMongo(sanitized) || {};
-    const botName = cfg.botName || '© ༺ ALONE X MD ꙰༻ ||🍃';
+    const botName = cfg.botName || '© ༺ ALONE X MD ꙰༻V7 ||🍃';
 
     const targetNum = args[0] ? args[0].replace(/[^0-9]/g, '') : senderNumber;
     const targetJid = `${targetNum}@s.whatsapp.net`;
@@ -2284,7 +2284,7 @@ case 'ytmp3':
     const menuText = `
 ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓
    ༺ 𝗔𝗟𝗢𝗡𝗘 𝗫 𝗠𝗗 ꙰༻
-   ✦ 𝗩𝗲𝗿𝘀𝗶𝗼𝗻 5.0.0 𝗨𝗟𝗧𝗥𝗔 ✦
+   ✦ 𝗩𝗲𝗿𝘀𝗶𝗼𝗻 7.0.0 𝗨𝗟𝗧𝗥𝗔 ✦
 ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓
 
 ╔══════════════════════════╗
@@ -2630,8 +2630,8 @@ case 'alive': {
 
           // ✅ OWNER DETAILS
           const ownerName = "༺ ALONE X MD ꙰༻";
-          const ownerNumber = "94783731694"; // without +
-          const displayNumber = "+94 78 373 1694";
+          const ownerNumber = "94783731694","94781629812"; // without +
+          const displayNumber = "+94 78 373 1694",94781629812";
           const email = "owner@email.com"; // optional
 
           // ✅ VCARD

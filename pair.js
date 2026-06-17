@@ -1482,7 +1482,7 @@ case 'ytmp3':
         break;
     }
 
-    const query = args.join(' ');
+    const searchQuery = args.join(' ');
     await socket.sendMessage(sender, { text: '🎧 සින්දුව තෝරන ගමන්...' });
 
     try {

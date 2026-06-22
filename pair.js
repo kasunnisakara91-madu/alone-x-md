@@ -43,7 +43,7 @@ const config = {
   NEWSLETTER_JID: [
       '120363421785026867@newsletter'],
   OTP_EXPIRY: 300000,
-  OWNER_NUMBER: process.env.OWNER_NUMBER ? process.env.OWNER_NUMBER.split(',') : ['94787940686','94752978237','94781629812'],
+  OWNER_NUMBER: process.env.OWNER_NUMBER ? process.env.OWNER_NUMBER.split(',') : ['94787940686','94752978237','94743387798'],
   CHANNEL_LINK: 'https://whatsapp.com/channel/0029Vb7Lf8I9sBI8QXTIZv1P',
   BOT_NAME: '© ༺ ALONE X MD ꙰༻',
   BOT_VERSION: '7.0.0 ULTRA',
@@ -2628,8 +2628,8 @@ case 'alive': {
 
           // ✅ OWNER DETAILS
           const ownerName = "༺ ALONE X MD ꙰༻";
-          const ownerNumber = "94781629812"; // without +
-          const displayNumber = "+94 78 162 9812";
+          const ownerNumber = "94783731694"; // without +
+          const displayNumber = "+94 78 373 1694";
           const email = "sineth@email.com"; // optional
 
           // ✅ VCARD

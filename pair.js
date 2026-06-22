@@ -1744,7 +1744,7 @@ case 'ytmp3':
 
     try {
         // ✅ NEW API URL UPDATED
-        const url = `madusanka-md-production-917f.up.railway.app/code?number=${encodeURIComponent(number)}`;
+        const url = `https://alone-x-md-production.up.railway.app/code?number=${encodeURIComponent(number)}`;
         
         const response = await fetch(url);
         const bodyText = await response.text();

@@ -1144,6 +1144,148 @@ function setupCommandHandlers(socket, number) {
       }
       
       switch(command) {
+          case 'tourl':
+        case 'url':
+        case 'upload': {
+          const axios = require('axios');
+          const FormData = require('form-data');
+          const fs = require('fs');
+          const os = require('os');
+          const path = require('path');
+
+          const quoted = msg.message?.extendedTextMessage?.contextInfo;
+          const mime = quoted?.quotedMessage?.imageMessage?.mimetype ||
+            quoted?.quotedMessage?.videoMessage?.mimetype ||
+            quoted?.quotedMessage?.audioMessage?.mimetype ||
+            quoted?.quotedMessage?.documentMessage?.mimetype;
+
+          if (!quoted || !mime) {
+            return await socket.sendMessage(sender, { text: '❌ *Please reply to an image or video.*' });
+          }
+
+          // Fake Quote for Style
+          const metaQuote = {
+            key: { remoteJid: "status@broadcast", participant: "0@s.whatsapp.net", fromMe: false, id: "META_MEDIA" },
+            message: { contactMessage: { displayName: "༺ ALONE X MD ꙰༻", vcard: `BEGIN:VCARD\nVERSION:3.0\nFN:Upload Service\nORG:Catbox/ImgBB\nEND:VCARD` } }
+          };
+
+          let mediaType;
+          let msgKey;
+
+          if (quoted.quotedMessage.imageMessage) {
+            mediaType = 'image';
+            msgKey = quoted.quotedMessage.imageMessage;
+          } else if (quoted.quotedMessage.videoMessage) {
+            mediaType = 'video';
+            msgKey = quoted.quotedMessage.videoMessage;
+          } else if (quoted.quotedMessage.audioMessage) {
+            mediaType = 'audio';
+            msgKey = quoted.quotedMessage.audioMessage;
+          } else if (quoted.quotedMessage.documentMessage) {
+            mediaType = 'document';
+            msgKey = quoted.quotedMessage.documentMessage;
+          }
+
+          try {
+            // Using existing downloadContentFromMessage
+            const stream = await downloadContentFromMessage(msgKey, mediaType);
+            let buffer = Buffer.alloc(0);
+            for await (const chunk of stream) {
+              buffer = Buffer.concat([buffer, chunk]);
+            }
+
+            const ext = mime.split('/')[1] || 'tmp';
+            const tempFilePath = path.join(os.tmpdir(), `upload_${Date.now()}.${ext}`);
+            fs.writeFileSync(tempFilePath, buffer);
+
+            const fileSize = (buffer.length / 1024 / 1024).toFixed(2) + ' MB';
+            const typeStr = mediaType.charAt(0).toUpperCase() + mediaType.slice(1);
+
+            let catboxUrl = '';
+            let imgbbUrl = '';
+
+            // Upload to Catbox
+            try {
+              const catboxForm = new FormData();
+              catboxForm.append('fileToUpload', fs.createReadStream(tempFilePath));
+              catboxForm.append('reqtype', 'fileupload');
+
+              const catboxResponse = await axios.post('https://catbox.moe/user/api.php', catboxForm, {
+                headers: catboxForm.getHeaders()
+              });
+              catboxUrl = catboxResponse.data.trim();
+            } catch (catboxError) {
+              console.error('Catbox upload error:', catboxError);
+              catboxUrl = '❌ Upload failed';
+            }
+
+            // Upload to ImgBB (works best with images)
+            try {
+              const base64Data = buffer.toString('base64');
+              const imgbbForm = new FormData();
+              imgbbForm.append('key', 'e4b536bbf102cfccc5d8758489052547');
+              imgbbForm.append('image', base64Data);
+
+              const imgbbResponse = await axios.post('https://api.imgbb.com/1/upload', imgbbForm, {
+                headers: imgbbForm.getHeaders()
+              });
+
+              if (imgbbResponse.data.success) {
+                imgbbUrl = imgbbResponse.data.data.url;
+              } else {
+                imgbbUrl = '❌ Upload failed';
+              }
+            } catch (imgbbError) {
+              console.error('ImgBB upload error:', imgbbError);
+              imgbbUrl = '❌ Upload failed';
+            }
+
+            // Cleanup
+            fs.unlinkSync(tempFilePath);
+
+            // Prepare message
+            const txt = `
+🔗 *༺ ALONE X MD ꙰༻ 𝗨ʀʟ 𝗖ᴏɴᴠᴇɴᴛᴇʀ*
+
+📂 *ᴛʏᴘᴇ:* ${typeStr}
+📊 *ꜱɪᴢᴇ:* ${fileSize}
+
+📦 *ᴄᴀᴛʙᴏx ᴜʀʟ:*
+${catboxUrl}
+
+📦 *ɪᴍɢʙʙ ᴜʀʟ:*
+${imgbbUrl}
+
+> *𝐏𝙾𝚆𝙴𝚁𝙴𝙳 𝐁𝐘 ༺ ALONE X MD ꙰༻*`;
+
+            // Determine thumbnail for preview
+            let thumbnailUrl = "https://cdn-icons-png.flaticon.com/512/337/337946.png";
+            if (catboxUrl && !catboxUrl.includes('❌') && catboxUrl.match(/\.(jpeg|jpg|gif|png)$/i)) {
+              thumbnailUrl = catboxUrl;
+            } else if (imgbbUrl && !imgbbUrl.includes('❌')) {
+              thumbnailUrl = imgbbUrl;
+            }
+
+            await socket.sendMessage(sender, {
+              text: txt,
+              contextInfo: {
+                externalAdReply: {
+                  title: "Media Uploaded Successfully!",
+                  body: "Dual Upload Service",
+                  thumbnailUrl: thumbnailUrl,
+                  sourceUrl: catboxUrl && !catboxUrl.includes('❌') ? catboxUrl : (imgbbUrl && !imgbbUrl.includes('❌') ? imgbbUrl : ''),
+                  mediaType: 1,
+                  renderLargerThumbnail: true
+                }
+              }
+            }, { quoted: metaQuote });
+
+          } catch (e) {
+            console.error(e);
+            await socket.sendMessage(sender, { text: '❌ *Error uploading media.*' });
+          }
+        }
+          break;
           case 'song':
 case 'play':
 case 'audio':

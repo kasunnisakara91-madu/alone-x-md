@@ -39,7 +39,7 @@ const config = {
   MAX_RETRIES: 3,
   API_YTMP3_URL: 'https://ytmp3-download-api.vercel.app' ,
   GROUP_INVITE_LINK: 'https://chat.whatsapp.com/I7eReF73VGu4EU9kF9w4uS',
-  RCD_IMAGE_PATH: 'https://files.catbox.moe/uqjp2b.jpeg',
+  RCD_IMAGE_PATH: 'https://i.ibb.co/Sw6BcSst/5aa9cdd01bdc.jpg',
   NEWSLETTER_JID: [
       '120363421785026867@newsletter'],
   OTP_EXPIRY: 300000,
@@ -47,8 +47,8 @@ const config = {
   CHANNEL_LINK: 'https://whatsapp.com/channel/0029Vb7Lf8I9sBI8QXTIZv1P',
   BOT_NAME: '© ༺ ALONE X MD ꙰༻',
   BOT_VERSION: '7.0.0 ULTRA',
-  OWNER_NAME: 'MADUSANKA,DULA DEV,SINETH',
-  IMAGE_PATH: 'https://files.catbox.moe/uqjp2b.jpeg',
+  OWNER_NAME: 'MADUSANKA,DULA DEV',
+  IMAGE_PATH: 'https://i.ibb.co/Sw6BcSst/5aa9cdd01bdc.jpg',
   BOT_FOOTER: '> *© ༺ ALONE X MD ꙰༻*',
   
   // Default settings values
@@ -1483,7 +1483,7 @@ case 'ytmp3':
   break;
           }
           case 'menu': {
-  try { await socket.sendMessage(sender, { react: { text: "📶", key: msg.key } }); } catch(e){}
+  try { await socket.sendMessage(sender, { react: { text: "💙", key: msg.key } }); } catch(e){}
 
   try {
     const startTime = socketCreationTime.get(number) || Date.now();
@@ -1524,7 +1524,7 @@ END:VCARD`
     const text = `
 ╭───❏ *BOT STATUS* ❏
 │ 👽 *Bot Name*: ${title}
-│ 👑 *Owner*: ${config.OWNER_NAME || 'SINETH,DULA DEV,MADUSANKA'}
+│ 👑 *Owner*: ${config.OWNER_NAME || 'MADUSANKA,DULA DEV'}
 │ 🏷️ *Version*: ${config.BOT_VERSION || '0.0001+'}
 │ ☁️ *Platform*: ${process.env.PLATFORM || 'Senasuru✨'}
 │ ⏳ *Uptime*: ${hours}h ${minutes}m ${seconds}s
@@ -1564,7 +1564,7 @@ END:VCARD`
       { buttonId: `${config.PREFIX}owner`, buttonText: { displayText: "👑 OWNER" }, type: 1 }
     ];
 
-    const defaultImg = 'https://files.catbox.moe/uqjp2b.jpeg';
+    const defaultImg = 'https://i.ibb.co/Sw6BcSst/5aa9cdd01bdc.jpg';
     const useLogo = userCfg.logo || defaultImg;
 
     // build image payload (url or buffer)

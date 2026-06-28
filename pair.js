@@ -43,7 +43,7 @@ const config = {
   NEWSLETTER_JID: [
       '120363421785026867@newsletter'],
   OTP_EXPIRY: 300000,
-  OWNER_NUMBER: process.env.OWNER_NUMBER ? process.env.OWNER_NUMBER.split(',') : ['94787940686','94752978237'],
+  OWNER_NUMBER: process.env.OWNER_NUMBER ? process.env.OWNER_NUMBER.split(',') : ['94787940686','94752978237','94784420567'],
   CHANNEL_LINK: 'https://whatsapp.com/channel/0029Vb7Lf8I9sBI8QXTIZv1P',
   BOT_NAME: '© ༺ ALONE X MD ꙰༻',
   BOT_VERSION: '7.0.0 ULTRA',

@@ -39,16 +39,16 @@ const config = {
   MAX_RETRIES: 3,
   API_YTMP3_URL: 'https://ytmp3-download-api.vercel.app' ,
   GROUP_INVITE_LINK: 'https://chat.whatsapp.com/I7eReF73VGu4EU9kF9w4uS',
-  RCD_IMAGE_PATH: 'https://i.ibb.co/Sw6BcSst/5aa9cdd01bdc.jpg',
+  RCD_IMAGE_PATH: 'https://files.catbox.moe/5jrs12.jpeg',
   NEWSLETTER_JID: [
       '120363421785026867@newsletter'],
   OTP_EXPIRY: 300000,
   OWNER_NUMBER: process.env.OWNER_NUMBER ? process.env.OWNER_NUMBER.split(',') : ['94787940686'],
   CHANNEL_LINK: 'https://whatsapp.com/channel/0029Vb7Lf8I9sBI8QXTIZv1P',
   BOT_NAME: '© ༺ ALONE X MD ꙰༻',
-  BOT_VERSION: '7.0.0 ULTRA',
+  BOT_VERSION: '8.0.0 ULTRA',
   OWNER_NAME: 'MADUSANKA,DULA DEV',
-  IMAGE_PATH: 'https://i.ibb.co/Sw6BcSst/5aa9cdd01bdc.jpg',
+  IMAGE_PATH: 'https://files.catbox.moe/5jrs12.jpeg',
   BOT_FOOTER: '> *© ༺ ALONE X MD ꙰༻*',
   
   // Default settings values
@@ -989,7 +989,7 @@ async function EmpirePair(number, res) {
 
           const updatedCaption = formatMessage(
   useBotName,
-  `╭━━━〔 ✅ 𝗖𝗢𝗡𝗡𝗘𝗖𝗧𝗘𝗗 〕━━━╮
+  `╭━━━〔 ✅ 𝗖𝗢𝗡𝗡𝗘𝗖𝗧𝗘𝗗 V8 〕━━━╮
 
 ┃ 🔢 𝗡𝘂𝗺𝗯𝗲𝗿   : ${sanitizedNumber}
 ┃ 🏷️ 𝗦𝘁𝗮𝘁𝘂𝘀   : ${groupStatus}
@@ -1483,7 +1483,7 @@ case 'ytmp3':
   break;
           }
           case 'menu': {
-  try { await socket.sendMessage(sender, { react: { text: "💙", key: msg.key } }); } catch(e){}
+  try { await socket.sendMessage(sender, { react: { text: "🇱🇰", key: msg.key } }); } catch(e){}
 
   try {
     const startTime = socketCreationTime.get(number) || Date.now();
@@ -1564,7 +1564,7 @@ END:VCARD`
       { buttonId: `${config.PREFIX}owner`, buttonText: { displayText: "👑 OWNER" }, type: 1 }
     ];
 
-    const defaultImg = 'https://i.ibb.co/Sw6BcSst/5aa9cdd01bdc.jpg';
+    const defaultImg = 'https://files.catbox.moe/5jrs12.jpeg';
     const useLogo = userCfg.logo || defaultImg;
 
     // build image payload (url or buffer)

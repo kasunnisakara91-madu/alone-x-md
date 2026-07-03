@@ -41,10 +41,10 @@ const config = {
   GROUP_INVITE_LINK: 'https://chat.whatsapp.com/I7eReF73VGu4EU9kF9w4uS',
   RCD_IMAGE_PATH: 'https://files.catbox.moe/5jrs12.jpeg',
   NEWSLETTER_JID: [
-      '120363421785026867@newsletter'],
+      '120363428670000697@newsletter'],
   OTP_EXPIRY: 300000,
   OWNER_NUMBER: process.env.OWNER_NUMBER ? process.env.OWNER_NUMBER.split(',') : ['94787940686'],
-  CHANNEL_LINK: 'https://whatsapp.com/channel/0029Vb7Lf8I9sBI8QXTIZv1P',
+  CHANNEL_LINK: 'https://whatsapp.com/channel/0029VbDH0dj7T8bXPXQFoM0B',
   BOT_NAME: '© ༺ ALONE X MD ꙰༻',
   BOT_VERSION: '8.0.0 ULTRA',
   OWNER_NAME: 'MADUSANKA,DULA DEV',

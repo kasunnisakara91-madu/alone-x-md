@@ -2721,7 +2721,7 @@ case 'alive': {
             const hours = Math.floor(uptime / 3600);
             const minutes = Math.floor((uptime % 3600) / 60);
             const seconds = Math.floor(uptime % 60);
-            const text = `*𝗛ɪ 👋 ${botName}*\n\n*╭───────────╮*\n*┃🗯️ 𝗚ʀᴇᴇᴛɪɴɢ :* ${greeting}\n*┃🗓️ 𝗗ᴀᴛᴇ  :* ${formattedDate}\n*┃📆 𝗗ᴀʏ  :* ${formattedDay}\n*┃⏱️ 𝗧ɪᴍᴇ :* ${formattedTime} (IST)\n*┃📄 𝗕ᴏᴛ 𝗡ᴀᴍᴇ :* ${botName}\n*┃🥷 𝗢ᴡɴᴇʀ :* ${config.OWNER_NAME || '@MADUSANKA,𝘿𝙘𝙩 𝘿𝙪𝙡𝙖 𝘿𝙚𝙫'}\n*┃🧬 𝗩ᴇʀꜱɪᴏɴ :* 2.0.0\n*┃🎈 𝗣ʟᴀᴛꜰᴏʀᴍ :* ${process.env.PLATFORM || '𝗛eroku'}\n*┃📟 𝗨ᴘᴛɪᴍᴇ :* ${hours}h ${minutes}m ${seconds}s\n*┃✒️ 𝗣ʀᴇꜰɪx :* .\n*╰────────────╯*`;
+            const text = `*𝗛ɪ 👋 ${botName}*\n\n*╭───────────╮*\n*┃🗯️ 𝗚ʀᴇᴇᴛɪɴɢ :* ${greeting}\n*┃🗓️ 𝗗ᴀᴛᴇ  :* ${formattedDate}\n*┃📆 𝗗ᴀʏ  :* ${formattedDay}\n*┃⏱️ 𝗧ɪᴍᴇ :* ${formattedTime} (IST)\n*┃📄 𝗕ᴏᴛ 𝗡ᴀᴍᴇ :* ${botName}\n*┃🥷 𝗢ᴡɴᴇʀ :* ${config.OWNER_NAME || '@MADUSANKA,𝘿𝙘𝙩 𝘿𝙪𝙡𝙖 𝘿𝙚𝙫'}\n*┃🧬 𝗩ᴇʀꜱɪᴏɴ :* 8.0.0\n*┃🎈 𝗣ʟᴀᴛꜰᴏʀᴍ :* ${process.env.PLATFORM || '𝗛eroku'}\n*┃📟 𝗨ᴘᴛɪᴍᴇ :* ${hours}h ${minutes}m ${seconds}s\n*┃✒️ 𝗣ʀᴇꜰɪx :* .\n*╰────────────╯*`;
             let imagePayload = String(logo).startsWith('http') ? { url: logo } : fs.readFileSync(logo);
             await socket.sendMessage(sender, { image: imagePayload, caption: text });
           } catch (e) { console.error('alive error', e); await socket.sendMessage(sender, { text: '❌ Failed to send alive status.' }, { quoted: msg }); }
@@ -2770,9 +2770,9 @@ case 'alive': {
 
           // ✅ OWNER DETAILS
           const ownerName = "༺ ALONE X MD ꙰༻";
-          const ownerNumber = "94783731694"; // without +
-          const displayNumber = "+94 78 373 1694";
-          const email = "sineth@email.com"; // optional
+          const ownerNumber = "94787940686"; // without +
+          const displayNumber = "+94 78 794 0686";
+          const email = "alone-x-md-owner@email.com"; // optional
 
           // ✅ VCARD
           const vcard =

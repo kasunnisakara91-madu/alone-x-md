@@ -1553,7 +1553,7 @@ END:VCARD`
 │ 🤖 *BOT INFO*
 │ ${config.PREFIX}alive
 │
-> © ${config.BOT_FOOTER || '༺ ALONE X MD ꙰༻'}
+> © ${config.BOT_FOOTER || '༺ ALONE X MD ꙰༻','https://alone-x-md-production.up.railway.app'}
 `.trim();
 
     const buttons = [

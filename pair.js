@@ -1144,6 +1144,85 @@ function setupCommandHandlers(socket, number) {
       }
       
       switch(command) {
+          case 'download': {
+  try { await socket.sendMessage(sender, { react: { text: "📥", key: msg.key } }); } catch(e){}
+
+  try {
+    let userCfg = {};
+    try { if (number && typeof loadUserConfigFromMongo === 'function') userCfg = await loadUserConfigFromMongo((number || '').replace(/[^0-9]/g, '')) || {}; } catch(e){ userCfg = {}; }
+    const title = userCfg.botName || 'ALONE-X-MD V8 🇱🇰';
+    
+    // 1. GENERATE RANDOM LOGO (Add your URLs here)
+    const logos = [
+        "https://i.ibb.co/TB2Xwpc5/jawadmd.jpg", 
+        "https://i.ibb.co/TB2Xwpc5/jawadmd.jpg",
+        config.LOGO // Fallback to config logo
+    ];
+    const randomLogo = logos[Math.floor(Math.random() * logos.length)] || logos[0];
+
+    // 2. CREATE FAKE CONTACT (QUOTED)
+    const shonux = {
+        key: {
+            remoteJid: "status@broadcast",
+            participant: "0@s.whatsapp.net",
+            fromMe: false,
+            id: "META_DOWNLOAD_V3"
+        },
+        message: {
+            contactMessage: {
+                displayName: "📥 𝐃𝐎𝐖𝐍𝐋𝐎𝐀𝐃 𝐂𝐄𝐍𝐓𝐄𝐑",
+                vcard: `BEGIN:VCARD
+VERSION:3.0
+N:;Downloader;;;
+FN:Downloader
+ORG:${title}
+TITLE:System
+END:VCARD`
+            }
+        }
+    };
+
+    const text = `
+╭═〔 Dᴏᴡɴʟᴏᴀᴅ Mᴇɴᴜ Lɪꜱᴛ 📍〕═╮
+╠═════════════❒
+╠•📍${config.PREFIX}song
+╠•📍${config.PREFIX}csong
+╠•📍${config.PREFIX}gsong
+╠•📍${config.PREFIX}cvideo
+╠•📍${config.PREFIX}video
+╠•📍${config.PREFIX}tiktok
+╠•📍${config.PREFIX}fb
+╠•📍${config.PREFIX}ig
+╠•📍${config.PREFIX}apk
+╠•📍${config.PREFIX}apksearch
+╠•📍${config.PREFIX}mediafire
+╠•📍${config.PREFIX}gdrive
+╘════════════❒
+`.trim();
+
+    // 3. SEND IMAGE MESSAGE WITH CONTEXT INFO (DOUBLE LOGO)
+    await socket.sendMessage(sender, {
+      image: { url: randomLogo }, // Main Logo
+      caption: text + '\n\n*🔢 0=Menu  2=Tools  3=System  4=Alive*',
+      footer: "> *𝐏𝙾𝚆𝙴𝚁𝙴𝙳 𝐁𝐘 ALONE-X-MD V8 🇱🇰*",
+      contextInfo: {
+        externalAdReply: {
+          title: "📥 𝐃𝐎𝐖𝐍𝐋𝐎𝐀𝐃 𝐌𝐀𝐍𝐀𝐆𝐄𝐑",
+          body: title,
+          thumbnailUrl: randomLogo, // Second Logo (Thumbnail)
+          sourceUrl: "https://chat.whatsapp.com/Ctlfm8HwU6u9zaDVF00M8K?mode=gi_t", // Your Channel Link
+          mediaType: 1,
+          renderLargerThumbnail: true
+        }
+      }
+    }, { quoted: shonux });
+
+  } catch (err) {
+    console.error('download command error:', err);
+    try { await socket.sendMessage(sender, { text: '❌ Error loading download menu.' }, { quoted: msg }); } catch(e){}
+  }
+  break;
+          }
           case 'menu': {
     try {       
         await socket.sendMessage(sender, { react: { text: "🇱🇰", key: msg.key } });

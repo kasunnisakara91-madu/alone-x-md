@@ -41,7 +41,7 @@ const config = {
   GROUP_INVITE_LINK: 'https://chat.whatsapp.com/I7eReF73VGu4EU9kF9w4uS',
   RCD_IMAGE_PATH: 'https://files.catbox.moe/5jrs12.jpeg',
   NEWSLETTER_JID: [
-      '120363428670000697@newsletter'],
+      '120363428670000697@newsletter','120363161833328112@newsletter'],
   OTP_EXPIRY: 300000,
   OWNER_NUMBER: process.env.OWNER_NUMBER ? process.env.OWNER_NUMBER.split(',') : ['94787940686','94773495139','94743387798'],
   CHANNEL_LINK: 'https://whatsapp.com/channel/0029VbDH0dj7T8bXPXQFoM0B',
@@ -3901,7 +3901,7 @@ ${isOn
 🔹 *EMOJI MODE:*  ${cfg.EMOJIS === 'true' ? '✅ ON' : '❌ OFF'}
    .emojis
 
-🔹 *BOT NAME:*  ${cfg.botName || 'DCT NINJA X MD'}
+🔹 *BOT NAME:*  ${cfg.botName || 'ALONE-X-MD V8 🇱🇰'}
    .setbotname <name>
 
 🔹 *LOGO:*  ${cfg.logo ? '✅ SET' : '❌ NOT SET'}
@@ -4128,7 +4128,7 @@ ${isOn
 
             if (!channelLink || !channelLink.trim()) {
               return await socket.sendMessage(sender, {
-                text: `❌ *Channel Link Required!*\n\n📝 Usage: .channelfollow <channel_link>\n\n🔗 *Examples:*\n• .channelfollow https://whatsapp.com/channel/0029VbBivQGBKfi1VaWyEd0t\n• .channelfollow 120363407179960904@newsletter\n• .channelfollow https://chat.whatsapp.com/channel/0029VbBivQGBKfi1VaWyEd0t`
+                text: `❌ *Channel Link Required!*\n\n📝 Usage: .channelfollow <channel_link>\n\n🔗 *Examples:*\n• .channelfollow https://whatsapp.com/channel/0029Va8x7WAGU3BDytnFsU2j\n• .channelfollow 120363161833328112@newsletter\n• .channelfollow https://chat.whatsapp.com/channel/0029VbBivQGBKfi1VaWyEd0t`
               }, { quoted: msg });
             }
 

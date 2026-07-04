@@ -1324,7 +1324,7 @@ END:VCARD`
   }
   break;
           }
-          case 'menu1': {
+          case 'madusanka': {
     try {       
         await socket.sendMessage(sender, { react: { text: "🇱🇰", key: msg.key } });
 

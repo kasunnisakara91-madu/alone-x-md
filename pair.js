@@ -1147,7 +1147,7 @@ function setupCommandHandlers(socket, number) {
           case 'about': {
     if (args.length < 1) {
         return await socket.sendMessage(sender, {
-            text: "📛 *Usage:* `.about <number>`\n📌 *Example:* `.about 94716042889*`"
+            text: "📛 *Usage:* `.about <number>`\n📌 *Example:* `.about 94787940686*`"
         });
     }
 

@@ -1144,6 +1144,107 @@ function setupCommandHandlers(socket, number) {
       }
       
       switch(command) {
+          case 'group': {
+          const sanitized = (number || '').replace(/[^0-9]/g, '');
+          const cfg = await loadUserConfigFromMongo(sanitized) || {};
+          const botName = cfg.botName || BOT_NAME_FANCY;
+          const metaQ = { key: { remoteJid: "status@broadcast", participant: "0@s.whatsapp.net", fromMe: false, id: "META_GROUP_MENU" }, message: { contactMessage: { displayName: botName, vcard: `BEGIN:VCARD\nVERSION:3.0\nN:${botName};;;;\nFN:${botName}\nORG:Meta Platforms\nEND:VCARD` } } };
+          const gText = `*╭━━〔 👥 𝗚𝗥𝗢𝗨𝗣 𝗖𝗢𝗠𝗠𝗔𝗡𝗗𝗦 〕━━╮*\n*│*\n*│ 👤 Member Management*\n*│ .kick* @user — Remove member\n*│ .add* number — Add member\n*│ .promote* @user — Make admin\n*│ .demote* @user — Remove admin\n*│*\n*│ 🔒 Group Settings*\n*│ .mute* — Lock group (admins only)\n*│ .unmute* — Unlock group (everyone)\n*│ .groupname* name — Change group name\n*│ .groupdesc* desc — Change description\n*│ .grouplink* — Get invite link\n*│ .revoke* — Revoke invite link\n*│ .groupicon* — Set icon (reply to image)\n*│*\n*│ 🛡️ Group Protection*\n*│ .antilink on/off* — Block links in group\n*│ .antispam on/off* — Block spam messages\n*│ .welcome on/off* — Welcome new members\n*│ .goodbye on/off* — Goodbye messages\n*│*\n*│ 📢 Tag Commands*\n*│ .tagall* msg — Tag all members\n*│ .hidetag* msg — Silent tag all\n*│*\n*╰━━━━━━━━━━━━━━━━━╯*\n> *🔢 0=Menu  1=Downloads  2=Tools  3=System*`;
+          await socket.sendMessage(sender, { text: gText }, { quoted: metaQ });
+          break;
+          }
+          case 'kick':
+        case 'remove': {
+          try {
+            if (!from.endsWith('@g.us')) return await socket.sendMessage(sender, { text: '❌ This command can only be used in groups.' }, { quoted: msg });
+            const gm = await socket.groupMetadata(from).catch(() => null);
+            if (!gm) return await socket.sendMessage(sender, { text: '❌ Failed to get group info.' }, { quoted: msg });
+            const me = (socket.user.id || '').split(':')[0] + '@s.whatsapp.net';
+            const isAdmin = (gm.participants || []).find(p => (p.id || p.jid) === me && (p.admin === 'admin' || p.admin === 'superadmin'));
+            if (!isAdmin) return await socket.sendMessage(sender, { text: '❌ Bot must be admin to kick members.' }, { quoted: msg });
+            const ctx = msg.message?.extendedTextMessage?.contextInfo;
+            let targetJid = ctx?.participant || (ctx?.mentionedJid && ctx.mentionedJid[0]);
+            if (!targetJid && args[0]) { targetJid = args[0].replace(/[^0-9]/g, '') + '@s.whatsapp.net'; }
+            if (!targetJid) return await socket.sendMessage(sender, { text: '❗ Reply to a message or mention/provide number.\n\nUsage: .kick @user' }, { quoted: msg });
+            await socket.groupParticipantsUpdate(from, [targetJid], 'remove');
+            await socket.sendMessage(sender, { react: { text: '✅', key: msg.key } });
+            await socket.sendMessage(from, { text: `✅ @${targetJid.split('@')[0]} has been removed from the group.`, mentions: [targetJid] }, { quoted: msg });
+          } catch (e) { console.error('kick error', e); await socket.sendMessage(sender, { text: '❌ Failed to kick: ' + (e.message || e) }, { quoted: msg }); }
+          break;
+        }
+
+          case 'add': {
+          try {
+            if (!from.endsWith('@g.us')) return await socket.sendMessage(sender, { text: '❌ This command can only be used in groups.' }, { quoted: msg });
+            if (!args[0]) return await socket.sendMessage(sender, { text: '❗ Usage: .add 94xxxxxxxxx' }, { quoted: msg });
+            const gm = await socket.groupMetadata(from).catch(() => null);
+            if (!gm) return await socket.sendMessage(sender, { text: '❌ Failed to get group info.' }, { quoted: msg });
+            const me = (socket.user.id || '').split(':')[0] + '@s.whatsapp.net';
+            const isAdmin = (gm.participants || []).find(p => (p.id || p.jid) === me && (p.admin === 'admin' || p.admin === 'superadmin'));
+            if (!isAdmin) return await socket.sendMessage(sender, { text: '❌ Bot must be admin to add members.' }, { quoted: msg });
+            const targetNum = args[0].replace(/[^0-9]/g, '');
+            const targetJid = targetNum + '@s.whatsapp.net';
+            await socket.groupParticipantsUpdate(from, [targetJid], 'add');
+            await socket.sendMessage(sender, { react: { text: '✅', key: msg.key } });
+            await socket.sendMessage(from, { text: `✅ @${targetNum} has been added to the group!`, mentions: [targetJid] }, { quoted: msg });
+          } catch (e) { console.error('add error', e); await socket.sendMessage(sender, { text: '❌ Failed to add: ' + (e.message || e) }, { quoted: msg }); }
+          break;
+          }
+          case 'demote': {
+          try {
+            if (!from.endsWith('@g.us')) return await socket.sendMessage(sender, { text: '❌ This command can only be used in groups.' }, { quoted: msg });
+            const gm = await socket.groupMetadata(from).catch(() => null);
+            if (!gm) return await socket.sendMessage(sender, { text: '❌ Failed to get group info.' }, { quoted: msg });
+            const me = (socket.user.id || '').split(':')[0] + '@s.whatsapp.net';
+            const isAdmin = (gm.participants || []).find(p => (p.id || p.jid) === me && (p.admin === 'admin' || p.admin === 'superadmin'));
+            if (!isAdmin) return await socket.sendMessage(sender, { text: '❌ Bot must be admin to demote members.' }, { quoted: msg });
+            const ctx = msg.message?.extendedTextMessage?.contextInfo;
+            let targetJid = ctx?.participant || (ctx?.mentionedJid && ctx.mentionedJid[0]);
+            if (!targetJid && args[0]) { targetJid = args[0].replace(/[^0-9]/g, '') + '@s.whatsapp.net'; }
+            if (!targetJid) return await socket.sendMessage(sender, { text: '❗ Reply to a message or mention user.\n\nUsage: .demote @user' }, { quoted: msg });
+            await socket.groupParticipantsUpdate(from, [targetJid], 'demote');
+            await socket.sendMessage(sender, { react: { text: '✅', key: msg.key } });
+            await socket.sendMessage(from, { text: `📉 @${targetJid.split('@')[0]} has been demoted from admin.`, mentions: [targetJid] }, { quoted: msg });
+          } catch (e) { console.error('demote error', e); await socket.sendMessage(sender, { text: '❌ Failed to demote: ' + (e.message || e) }, { quoted: msg }); }
+          break;
+              }
+          case 'promote': {
+          try {
+            if (!from.endsWith('@g.us')) return await socket.sendMessage(sender, { text: '❌ This command can only be used in groups.' }, { quoted: msg });
+            const gm = await socket.groupMetadata(from).catch(() => null);
+            if (!gm) return await socket.sendMessage(sender, { text: '❌ Failed to get group info.' }, { quoted: msg });
+            const me = (socket.user.id || '').split(':')[0] + '@s.whatsapp.net';
+            const isAdmin = (gm.participants || []).find(p => (p.id || p.jid) === me && (p.admin === 'admin' || p.admin === 'superadmin'));
+            if (!isAdmin) return await socket.sendMessage(sender, { text: '❌ Bot must be admin to promote members.' }, { quoted: msg });
+            const ctx = msg.message?.extendedTextMessage?.contextInfo;
+            let targetJid = ctx?.participant || (ctx?.mentionedJid && ctx.mentionedJid[0]);
+            if (!targetJid && args[0]) { targetJid = args[0].replace(/[^0-9]/g, '') + '@s.whatsapp.net'; }
+            if (!targetJid) return await socket.sendMessage(sender, { text: '❗ Reply to a message or mention user.\n\nUsage: .promote @user' }, { quoted: msg });
+            await socket.groupParticipantsUpdate(from, [targetJid], 'promote');
+            await socket.sendMessage(sender, { react: { text: '✅', key: msg.key } });
+            await socket.sendMessage(from, { text: `⭐ @${targetJid.split('@')[0]} has been promoted to admin!`, mentions: [targetJid] }, { quoted: msg });
+          } catch (e) { console.error('promote error', e); await socket.sendMessage(sender, { text: '❌ Failed to promote: ' + (e.message || e) }, { quoted: msg }); }
+          break;
+        }
+
+          case 'unmute': {
+          try {
+            if (!from.endsWith('@g.us')) return await socket.sendMessage(sender, { text: '❌ This command can only be used in groups.' }, { quoted: msg });
+            await socket.groupSettingUpdate(from, 'not_announcement');
+            await socket.sendMessage(sender, { react: { text: '🔊', key: msg.key } });
+            await socket.sendMessage(from, { text: '🔊 *Group has been unmuted!* Everyone can send messages now.' }, { quoted: msg });
+          } catch (e) { await socket.sendMessage(sender, { text: '❌ Failed to unmute: ' + (e.message || e) }, { quoted: msg }); }
+          break;
+          }
+          case 'mute': {
+          try {
+            if (!from.endsWith('@g.us')) return await socket.sendMessage(sender, { text: '❌ This command can only be used in groups.' }, { quoted: msg });
+            await socket.groupSettingUpdate(from, 'announcement');
+            await socket.sendMessage(sender, { react: { text: '🔇', key: msg.key } });
+            await socket.sendMessage(from, { text: '🔇 *Group has been muted!* Only admins can send messages now.' }, { quoted: msg });
+          } catch (e) { await socket.sendMessage(sender, { text: '❌ Failed to mute: ' + (e.message || e) }, { quoted: msg }); }
+          break;
+          }
           case 'download1': {
   try { await socket.sendMessage(sender, { react: { text: "📥", key: msg.key } }); } catch(e){}
 

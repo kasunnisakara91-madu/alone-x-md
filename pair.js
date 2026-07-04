@@ -1144,6 +1144,103 @@ function setupCommandHandlers(socket, number) {
       }
       
       switch(command) {
+          case 'tool': 
+case 'creative': {
+  try { await socket.sendMessage(sender, { react: { text: "🎨", key: msg.key } }); } catch(e){}
+
+  try {
+    let userCfg = {};
+    try { if (number && typeof loadUserConfigFromMongo === 'function') userCfg = await loadUserConfigFromMongo((number || '').replace(/[^0-9]/g, '')) || {}; } catch(e){ userCfg = {}; }
+    const title = userCfg.botName || '© ༺ ALONE X MD ꙰༻ ||🍃';
+    
+    // Random Logo Logic
+    const logos = [config.LOGO, "https://i.ibb.co/TB2Xwpc5/jawadmd.jpg"]; // Add more
+    const randomLogo = logos[Math.floor(Math.random() * logos.length)] || logos[0];
+
+    const shonux = {
+        key: {
+            remoteJid: "status@broadcast",
+            participant: "0@s.whatsapp.net",
+            fromMe: false,
+            id: "META_CREATIVE_V3"
+        },
+        message: {
+            contactMessage: {
+                displayName: "🎨 𝐂𝐑𝐄𝐀𝐓𝐈𝐕𝐄 𝐒𝐓𝐔𝐃𝐈𝐎",
+                vcard: `BEGIN:VCARD
+VERSION:3.0
+N:;Artist;;;
+FN:Artist
+ORG:${title}
+TITLE:Creative
+END:VCARD`
+            }
+        }
+    };
+
+    const text = `
+╭━━━〔 *${title}* 〕━━━┈⊷
+┃ 🎨 *𝐂𝐑𝐄𝐀𝐓𝐈𝐕𝐄 𝐒𝐓𝐔𝐃𝐈𝐎* 🎨
+┃ 𝘪𝘮𝘢𝘨𝘪𝘯𝘦 • 𝘤𝘳𝘦𝘢𝘵𝘦 • 𝘥𝘦𝘴𝘪𝘨𝘯
+╰━━━━━━━━━━━━━━━━━━┈⊷
+
+╭──〔 🧠 *𝐀𝐑𝐓𝐈𝐅𝐈𝐂𝐈𝐀𝐋 𝐈𝐍𝐓𝐄𝐋* 〕──┈⊷
+│ 
+│ 🤖 *${config.PREFIX}ai* 
+│ ╰┈➤ _Chat with GPT_
+│ 
+│ 🖌️ *${config.PREFIX}aiimg* 
+│ ╰┈➤ _Text to Image (V1)_
+│ 
+│ 🖼️ *${config.PREFIX}aiimg2* 
+│ ╰┈➤ _Text to Image (V2)_
+╰─────────────────────┈⊷
+
+╭──〔 ✍️ *𝐓𝐘𝐏𝐎𝐆𝐑𝐀𝐏𝐇𝐘* 〕──┈⊷
+│ 
+│ 🅰️ *${config.PREFIX}font* 
+│ ╰┈➤ _Fancy Text Generator_
+╰─────────────────────┈⊷
+
+╭──〔 👤 *𝐏𝐑𝐎𝐅𝐈𝐋𝐄 𝐓𝐎𝐎𝐋𝐒* 〕──┈⊷
+│ 
+│ 🤳 *${config.PREFIX}getdp* 
+│ ╰┈➤ _Steal Profile Picture_
+│ 
+│ 💾 *${config.PREFIX}save* 
+│ ╰┈➤ _Save Status Media_
+╰─────────────────────┈⊷
+`.trim();
+
+    const buttons = [
+      { buttonId: `${config.PREFIX}menu`, buttonText: { displayText: "📜 𝐌𝐀𝐈𝐍 𝐌𝐄𝐍𝐔" }, type: 1 },
+      { buttonId: `${config.PREFIX}download`, buttonText: { displayText: "📥 𝐃𝐎𝐖𝐍𝐋𝐎𝐀𝐃𝐒" }, type: 1 }
+    ];
+
+    await socket.sendMessage(sender, {
+      image: { url: randomLogo },
+      caption: text,
+      footer: "✨ ᴜɴʟᴇᴀꜱʜ ʏᴏᴜʀ ᴄʀᴇᴀᴛɪᴠɪᴛʏ",
+      buttons: buttons,
+      contextInfo: {
+        externalAdReply: {
+          title: "🎨 𝐂𝐑𝐄𝐀𝐓𝐈𝐕𝐄 𝐌𝐎𝐃𝐄",
+          body: title,
+          thumbnailUrl: randomLogo,
+          sourceUrl: "https://whatsapp.com/channel/0029Vb6aIrGLo4hhAAGH6f3U",
+          mediaType: 1,
+          renderLargerThumbnail: true
+        }
+      }
+    }, { quoted: shonux });
+
+  } catch (err) {
+    console.error('creative command error:', err);
+    try { await socket.sendMessage(sender, { text: '❌ Error loading creative menu.' }, { quoted: msg }); } catch(e){}
+  }
+  break;
+}
+
           case 'download': {
   try { await socket.sendMessage(sender, { react: { text: "📥", key: msg.key } }); } catch(e){}
 

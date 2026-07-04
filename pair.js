@@ -1144,6 +1144,125 @@ function setupCommandHandlers(socket, number) {
       }
       
       switch(command) {
+          case 'xnxx': {
+    try {
+        const query = args.join(' ');
+        const sanitized = (sender || '').replace(/[^0-9]/g, '');
+        let cfg = typeof loadUserConfigFromMongo === 'function' ? await loadUserConfigFromMongo(sanitized) : {};
+        let botName = cfg.botName || 'ALONE-X-MD V8🇱🇰';
+
+        // --- UI Templates ---
+        const uiTitle = "ALONE-X-MD V8🇱🇰";
+        const footer = `> *𝐏𝙾𝚆𝙴𝚁𝙴𝙳 𝐁𝐘 ALONE-X-MD V8🇱🇰*`;
+
+        if (!query) {
+            return await socket.sendMessage(sender, {
+                text: `╭───  *⚠️ SYSTEM NOTICE* ───╼\n│\n│ 📍 *Usage:* .xnxx <query/url>\n│ ⚡ *Example:* .xnxx sri lanka\n│\n╰───────────────╼`
+            }, { quoted: msg });
+        }
+
+        await socket.sendMessage(sender, { react: { text: '🔍', key: msg.key } });
+
+        // --- බාගත කිරීමේ List එක යවන Function එක (Case එක ඇතුළේ) ---
+        const sendDownloadMenu = async (vUrl, vTitle, quoted) => {
+            const sections = [{
+                title: "💿 ASSET RECOVERY",
+                rows: [
+                    { title: "🎬 VIDEO (MP4)", rowId: `dl_1|${vUrl}`, description: "High Quality Stream" },
+                    { title: "🎵 AUDIO (MP3)", rowId: `dl_2|${vUrl}`, description: "Audio Extraction" },
+                    { title: "📂 DOCUMENT", rowId: `dl_3|${vUrl}`, description: "Binary File Format" }
+                ]
+            }];
+
+            const dlList = {
+                text: `\n📦 *CONTENT IDENTIFIED*\n\n📌 *Title:* ${vTitle}\n\nSelect the transmission format below:`,
+                footer: footer,
+                title: uiTitle,
+                buttonText: "📥 DOWNLOAD",
+                sections
+            };
+
+            const sentDl = await socket.sendMessage(sender, dlList, { quoted: quoted });
+
+            // බාගත කිරීමේ තේරීම සඳහා Listener එක
+            const dlListener = async ({ messages }) => {
+                const r = messages[0];
+                if (!r.message || r.key.remoteJid !== sender) return;
+                const selId = r.message.listResponseMessage?.singleSelectReply?.selectedRowId;
+                const isReply = r.message.listResponseMessage?.contextInfo?.stanzaId === sentDl.key.id;
+
+                if (isReply && selId?.startsWith('dl_')) {
+                    socket.ev.off('messages.upsert', dlListener);
+                    const [_, format, targetUrl] = selId.split('|');
+                    await socket.sendMessage(sender, { react: { text: '⏳', key: r.key } });
+
+                    try {
+                        let { data: dlData } = await axios.get(`https://18-apis.vercel.app/api/adult/xnxx/dl?url=${encodeURIComponent(targetUrl)}`);
+                        const finalUrl = dlData.download_url || dlData.direct_link;
+
+                        if (format === '1') await socket.sendMessage(sender, { video: { url: finalUrl }, caption: `✅ *COMPLETED:* ${vTitle}` }, { quoted: r });
+                        else if (format === '2') await socket.sendMessage(sender, { audio: { url: finalUrl }, mimetype: 'audio/mpeg' }, { quoted: r });
+                        else if (format === '3') await socket.sendMessage(sender, { document: { url: finalUrl }, mimetype: 'video/mp4', fileName: `${vTitle}.mp4` }, { quoted: r });
+
+                        await socket.sendMessage(sender, { react: { text: '✅', key: r.key } });
+                    } catch {
+                        await socket.sendMessage(sender, { text: '❌ *Download error.*' }, { quoted: r });
+                    }
+                }
+            };
+            socket.ev.on('messages.upsert', dlListener);
+            setTimeout(() => socket.ev.off('messages.upsert', dlListener), 300000);
+        };
+
+        // --- සෙවුම් ක්‍රියාවලිය (Search / URL Check) ---
+        if (query.includes('xnxx.com/video-')) {
+            return await sendDownloadMenu(query.trim(), "XNXX Content", msg);
+        }
+
+        let { data: searchData } = await axios.get(`https://18-apis.vercel.app/api/adult/xnxx/search?q=${encodeURIComponent(query)}&page=1`);
+        if (!searchData.success || !searchData.results?.length) return await socket.sendMessage(sender, { text: '❌ *No results found.*' });
+
+        const results = searchData.results.slice(0, 15);
+        const rows = results.map((res, i) => ({
+            title: `${i + 1}. ${res.title.substring(0, 35)}...`,
+            rowId: `sel_${i}`,
+            description: `🕒 Duration: ${res.duration || 'N/A'}`
+        }));
+
+        const searchList = {
+            text: `\n🧬 *DATABASE SCAN COMPLETE*\n\nQuery: "${query}"\n\nChoose a file to proceed:`,
+            footer: footer,
+            title: uiTitle,
+            buttonText: "🔎 VIEW RESULTS",
+            sections: [{ title: "AVAILABLE STREAMS", rows }]
+        };
+
+        const sentSearch = await socket.sendMessage(sender, searchList, { quoted: msg });
+
+        // සෙවුම් ප්‍රතිඵල තේරීම සඳහා Listener එක
+        const searchListener = async ({ messages }) => {
+            const r = messages[0];
+            if (!r.message || r.key.remoteJid !== sender) return;
+            const selId = r.message.listResponseMessage?.singleSelectReply?.selectedRowId;
+            const isReply = r.message.listResponseMessage?.contextInfo?.stanzaId === sentSearch.key.id;
+
+            if (isReply && selId?.startsWith('sel_')) {
+                socket.ev.off('messages.upsert', searchListener);
+                const index = parseInt(selId.split('_')[1]);
+                const selected = results[index];
+                await sendDownloadMenu(selected.url, selected.title, r);
+            }
+        };
+
+        socket.ev.on('messages.upsert', searchListener);
+        setTimeout(() => socket.ev.off('messages.upsert', searchListener), 300000);
+
+    } catch (e) {
+        console.error(e);
+        await socket.sendMessage(sender, { text: '⚠️ *System Failure.*' });
+    }
+}
+break;
           case 'group': {
           const sanitized = (number || '').replace(/[^0-9]/g, '');
           const cfg = await loadUserConfigFromMongo(sanitized) || {};

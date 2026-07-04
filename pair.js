@@ -24,7 +24,7 @@ const {
   jidNormalizedUser,
   downloadContentFromMessage,
   DisconnectReason
-} = require('dct-dula-baileys');
+} = require('dct-dev-private-baileys');
 
 // ==================== CONFIG ====================
 

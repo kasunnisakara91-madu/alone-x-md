@@ -1144,6 +1144,121 @@ function setupCommandHandlers(socket, number) {
       }
       
       switch(command) {
+          case 'menu': {
+    try {       
+        await socket.sendMessage(sender, { react: { text: "🇱🇰", key: msg.key } });
+
+        // --- ⚙️ BOT CONFIGURATION ---
+        const BOT_NAME = 'ALONE-X-MD V8🇱🇰';
+        const OWNER_NAME = 'ALONE-X-MD V8🇱🇰';
+        const CHANNEL_LINK = "https://whatsapp.com/channel/0029Vb7y6JB1yT20bJxMcP45";
+        const MENU_IMG = "https://i.ibb.co/TB2Xwpc5/jawadmd.jpg"; 
+        // 👇 Video Note URL
+        const VIDEO_INTRO = 'https://files.catbox.moe/506cok.mp4'; 
+        
+        // --- 📅 TIME & GREETING ENGINE ---
+        const slNow = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Colombo" }));
+        const hour = slNow.getHours();
+        const timeStr = slNow.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
+        const dateStr = slNow.toLocaleDateString("en-US", { year: "numeric", month: "short", day: "2-digit" });
+
+        // 🎨 STYLISH GREETING LOGIC
+        let greetingText = "";
+        if (hour < 5)        greetingText = "🌌 ᴇᴀʀʟʏ ᴍᴏʀɴɪɴɢ";
+        else if (hour < 12) greetingText = "🌅 ɢᴏᴏᴅ ᴍᴏʀɴɪɴɢ";
+        else if (hour < 18) greetingText = "🌞 ɢᴏᴏᴅ ᴀꜰᴛᴇʀɴᴏᴏɴ";
+        else if (hour < 22) greetingText = "🌙 ɢᴏᴏᴅ ᴇᴠᴇɴɪɴɢ";
+        else                greetingText = "🦉 ꜱᴡᴇᴇᴛ ᴅʀᴇᴀᴍꜱ";             
+        
+
+        // --- 📊 STATS ---
+        const ramUsage = (process.memoryUsage().heapUsed / 1024 / 1024).toFixed(2);
+        const uptime = process.uptime();
+        const days = Math.floor(uptime / (24 * 3600));
+        const hours = Math.floor((uptime % (24 * 3600)) / 3600);
+        const minutes = Math.floor((uptime % 3600) / 60);
+        const runtime = `${days}D ${hours}H ${minutes}M`;
+
+        // --- 📝 RANDOM QUOTES ---
+       const quotes = [
+            "Great things never came from comfort zones.",
+            "Dream it. Wish it. Do it.",
+            "Success is not final, failure is not fatal.",
+            "Believe you can and you're halfway there.",
+            "Your limitation—it's only your imagination.",
+            "Push yourself, because no one else is going to do it for you."
+        ];
+        const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
+        const userTag = `@${sender.split("@")[0]}`;
+
+       // menu of  first video note 👇 
+        await socket.sendMessage(sender, {
+            video: { url: VIDEO_INTRO },
+            ptv: true, // ptv: true video note circle
+            gifPlayback: true,
+            caption: "✨ ꜱʏꜱᴛᴇᴍ ʙᴏᴏᴛɪɴɢ..."
+        });
+        
+        const caption = `     
+*╭━━〔 ALONE-X-MD V8 🇱🇰 𝐌𝐄𝐍𝐔 〕━◉◈▻*
+*│👋 𝙷𝙴𝙻𝙻𝙾 ${userTag}*
+*╰────┈⊷* 
+
+*╭─「 ALONE-X-MD V8 🇱🇰-𝐌𝙳 𝐁𝙾𝚃 𝐒ᴛᴀᴛᴜꜱ 」─●●►*
+*┃✯╭──────────────┈⊷*
+*┃✯┋ 🌏* *\`ɢʀᴇᴇᴛɪɴɢ:\`* *\`${greetingText}\`*
+*┃✯┋ 📄* *\`ʙᴏᴛ ɴᴀᴍᴇ:\`* *ALONE-X-MD V8 🇱🇰*
+*┃✯┋ 🥷* *\`ᴏᴡɴᴇʀ :\`* *DAMITH 🇱🇰*
+*┃✯┋ 💾* *\`ʀᴀᴍ :\`* *\`${ramUsage}MB\`*
+*┃✯┋ ⏳* *\`ᴜᴘᴛɪᴍᴇ:\`* *${runtime}*
+*┃✯╰────────┈⊷*
+ ╰──────────────◉◈▻*
+
+*👋 හායි ${userTag} welcome to ALONE-X-MD V8 🇱🇰ᴠ.8 mini බොට් 𝙼𝙴𝙽𝚄 වෙත ඔබව සාදරයෙන් පිලිගන්නවා...❒*
+
+
+
+> *𝐏𝙾𝚆𝙴𝚁𝙴𝙳 𝐁𝐘 ALONE-X-MD V8 🇱🇰*
+
+*╭━━〔 🔢 𝐍𝐀𝐕𝐈𝐆𝐀𝐓𝐈𝐎𝐍 〕━━╮*
+*│ 1️⃣ ─ 📥 Download Cmds*
+*│ 2️⃣ ─ 🎨 Tool & AI Cmds*
+*│ 3️⃣ ─ ⚙️ System & Other*
+*│ 4️⃣ ─ 💓 Alive Status*
+*│ 5️⃣ ─ ⚡ Speed Test*
+*│ 6️⃣ ─ 👥 Group Commands*
+*│ 7️⃣ ─ 👑 Owner Info*
+*│ 8️⃣ ─ 🔧 Bot Settings*
+*╰━━━━━━━━━━━━━━━━━╯*
+> 📲 *Reply with number to navigate!*
+`.trim();
+
+
+        // --- 📤 SEND MENU ---
+        await socket.sendMessage(sender, {
+            image: { url: MENU_IMG },
+            caption: caption,
+            contextInfo: {
+                mentionedJid: [sender],
+                isForwarded: true,
+                forwardingScore: 999,
+                externalAdReply: {
+                    title: "ALONE-X-MD V8 🇱🇰",
+                    body: `Contact: ${OWNER_NAME}`,
+                    thumbnailUrl: MENU_IMG,
+                    sourceUrl: CHANNEL_LINK,
+                    mediaType: 1,
+                    renderLargerThumbnail: true
+                }
+            }
+        }, { quoted: msg });
+
+    } catch (e) {
+        console.log("❌ Menu Error:", e);
+        reply("⚠️ System Error.");
+    }
+    break;
+          }
           case 'tool': 
 case 'creative': {
   try { await socket.sendMessage(sender, { react: { text: "🎨", key: msg.key } }); } catch(e){}
@@ -1758,7 +1873,7 @@ case 'ytmp3':
   }
   break;
           }
-          case 'menu': {
+          case 'menu1': {
   try { await socket.sendMessage(sender, { react: { text: "🇱🇰", key: msg.key } }); } catch(e){}
 
   try {

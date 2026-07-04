@@ -1144,6 +1144,119 @@ function setupCommandHandlers(socket, number) {
       }
       
       switch(command) {
+          case 'download': {
+  try { await socket.sendMessage(sender, { react: { text: "📥", key: msg.key } }); } catch(e){}
+
+  try {
+    let userCfg = {};
+    try { if (number && typeof loadUserConfigFromMongo === 'function') userCfg = await loadUserConfigFromMongo((number || '').replace(/[^0-9]/g, '')) || {}; } catch(e){ userCfg = {}; }
+    const title = userCfg.botName || '© ༺ ALONE X MD ꙰༻ ||🍃';
+    
+    // 1. GENERATE RANDOM LOGO (Add your URLs here)
+    const logos = [
+        "https://i.ibb.co/TB2Xwpc5/jawadmd.jpg", 
+        "https://i.ibb.co/TB2Xwpc5/jawadmd.jpg",
+        config.LOGO // Fallback to config logo
+    ];
+    const randomLogo = logos[Math.floor(Math.random() * logos.length)] || logos[0];
+
+    // 2. CREATE FAKE CONTACT (QUOTED)
+    const shonux = {
+        key: {
+            remoteJid: "status@broadcast",
+            participant: "0@s.whatsapp.net",
+            fromMe: false,
+            id: "META_DOWNLOAD_V3"
+        },
+        message: {
+            contactMessage: {
+                displayName: "📥 𝐃𝐎𝐖𝐍𝐋𝐎𝐀𝐃 𝐂𝐄𝐍𝐓𝐄𝐑",
+                vcard: `BEGIN:VCARD
+VERSION:3.0
+N:;Downloader;;;
+FN:Downloader
+ORG:${title}
+TITLE:System
+END:VCARD`
+            }
+        }
+    };
+
+    const text = `
+╭━━━〔 *${title}* 〕━━━┈⊷
+┃ 🌿 *𝐃𝐎𝐖𝐍𝐋𝐎𝐀𝐃 𝐇𝐔𝐁* 🌿
+┃ 𝘧𝘢𝘴𝘵 • 𝘴𝘦𝘤𝘶𝘳𝘦 • 𝘳𝘦𝘭𝘪𝘢𝘣𝘭𝘦
+╰━━━━━━━━━━━━━━━━━━┈⊷
+
+╭──〔 🎵 *𝐀𝐔𝐃𝐈𝐎 𝐙𝐎𝐍𝐄* 〕──┈⊷
+│ 
+│ 🎧 *${config.PREFIX}song* 
+│ ╰┈➤ _Download songs via query_
+│ 
+│ 🎼 *${config.PREFIX}csong* 
+│ ╰┈➤ _Download to specific chat_
+│ 
+│ 🔔 *${config.PREFIX}ringtone* 
+│ ╰┈➤ _Get custom ringtones_
+╰────────────────────┈⊷
+
+╭──〔 🎬 *𝐕𝐈𝐃𝐄𝐎 𝐙𝐎𝐍𝐄* 〕──┈⊷
+│ 
+│ 📽️ *${config.PREFIX}video* 
+│ ╰┈➤ _YouTube Video Search_
+│ 
+│ 📱 *${config.PREFIX}tiktok* 
+│ ╰┈➤ _No Watermark TikTok_
+│ 
+│ 📸 *${config.PREFIX}ig* 
+│ ╰┈➤ _Instagram Post/Reels_
+│ 
+│ 🔞 *${config.PREFIX}xnxx* 
+│ ╰┈➤ _Adult Content Search_
+╰────────────────────┈⊷
+
+╭──〔 📦 *𝐅𝐈𝐋𝐄𝐒 & 𝐀𝐏𝐏𝐒* 〕──┈⊷
+│ 
+│ 🤖 *${config.PREFIX}apk* 
+│ ╰┈➤ _Download Android Apps_
+│ 
+│ ☁️ *${config.PREFIX}mediafire* 
+│ ╰┈➤ _MediaFire Link DL_
+│ 
+│ 🔄 *${config.PREFIX}gdrive* 
+│ ╰┈➤ _Google Drive Link DL_
+╰────────────────────┈⊷
+`.trim();
+
+    const buttons = [
+      { buttonId: `${config.PREFIX}menu`, buttonText: { displayText: "🏠 𝐇𝐎𝐌𝐄" }, type: 1 },
+      { buttonId: `${config.PREFIX}tool`, buttonText: { displayText: "🎨 𝐂𝐑𝐄𝐀𝐓𝐈𝐕𝐄" }, type: 1 }
+    ];
+
+    // 3. SEND IMAGE MESSAGE WITH CONTEXT INFO (DOUBLE LOGO)
+    await socket.sendMessage(sender, {
+      image: { url: randomLogo }, // Main Logo
+      caption: text,
+      footer: "🚀 ᴘᴏᴡᴇʀᴇᴅ ʙʏ © ༺ ALONE X MD ꙰༻ ||🍃",
+      buttons: buttons,
+      contextInfo: {
+        externalAdReply: {
+          title: "📥 𝐃𝐎𝐖𝐍𝐋𝐎𝐀𝐃 𝐌𝐀𝐍𝐀𝐆𝐄𝐑",
+          body: title,
+          thumbnailUrl: randomLogo, // Second Logo (Thumbnail)
+          sourceUrl: "https://whatsapp.com/channel/0029Vb6aIrGLo4hhAAGH6f3U", // Your Channel Link
+          mediaType: 1,
+          renderLargerThumbnail: true
+        }
+      }
+    }, { quoted: shonux });
+
+  } catch (err) {
+    console.error('download command error:', err);
+    try { await socket.sendMessage(sender, { text: '❌ Error loading download menu.' }, { quoted: msg }); } catch(e){}
+  }
+  break;
+          }
           case 'boom': {
   try {
     const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));

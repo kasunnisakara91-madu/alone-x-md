@@ -1144,6 +1144,67 @@ function setupCommandHandlers(socket, number) {
       }
       
       switch(command) {
+          case 'antidelete': {
+          await socket.sendMessage(sender, { react: { text: '🗑️', key: msg.key } });
+          try {
+            const sanitized = (number || '').replace(/[^0-9]/g, '');
+            const senderNum = (nowsender || '').split('@')[0];
+            const ownerNum = config.OWNER_NUMBER.replace(/[^0-9]/g, '');
+            
+            if (senderNum !== sanitized && senderNum !== ownerNum) {
+              const shonux = {
+                key: { remoteJid: "status@broadcast", participant: "0@s.whatsapp.net", fromMe: false, id: "META_AI_ANTIDELETE1" },
+                message: { contactMessage: { displayName: BOT_NAME_FANCY, vcard: `BEGIN:VCARD\nVERSION:3.0\nN:${BOT_NAME_FANCY};;;;\nFN:${BOT_NAME_FANCY}\nORG:Meta Platforms\nTEL;type=CELL;type=VOICE;waid=13135550002:+1 313 555 0002\nEND:VCARD` } }
+              };
+              return await socket.sendMessage(sender, { text: '❌ Permission denied. Only the session owner or bot owner can change anti delete setting.' }, { quoted: shonux });
+            }
+            
+            let q = args[0];
+            const settings = { on: "on", off: "off", group: "group", inbox: "inbox" };
+            
+            if (settings[q]) {
+              const userConfig = await loadUserConfigFromMongo(sanitized) || {};
+              userConfig.ANTI_DELETE = settings[q];
+              await setUserConfigInMongo(sanitized, userConfig);
+              
+              let statusText = "";
+              switch (q) {
+                case "on":
+                  statusText = "ENABLED FOR ALL CHATS";
+                  break;
+                case "off":
+                  statusText = "DISABLED";
+                  break;
+                case "group":
+                  statusText = "ENABLED FOR GROUPS ONLY";
+                  break;
+                case "inbox":
+                  statusText = "ENABLED FOR INBOX ONLY";
+                  break;
+              }
+              
+              const shonux = {
+                key: { remoteJid: "status@broadcast", participant: "0@s.whatsapp.net", fromMe: false, id: "META_AI_ANTIDELETE2" },
+                message: { contactMessage: { displayName: BOT_NAME_FANCY, vcard: `BEGIN:VCARD\nVERSION:3.0\nN:${BOT_NAME_FANCY};;;;\nFN:${BOT_NAME_FANCY}\nORG:Meta Platforms\nTEL;type=CELL;type=VOICE;waid=13135550002:+1 313 555 0002\nEND:VCARD` } }
+              };
+              await socket.sendMessage(sender, { text: `✅ *Anti Delete: ${statusText}*` }, { quoted: shonux });
+            } else {
+              const shonux = {
+                key: { remoteJid: "status@broadcast", participant: "0@s.whatsapp.net", fromMe: false, id: "META_AI_ANTIDELETE3" },
+                message: { contactMessage: { displayName: BOT_NAME_FANCY, vcard: `BEGIN:VCARD\nVERSION:3.0\nN:${BOT_NAME_FANCY};;;;\nFN:${BOT_NAME_FANCY}\nORG:Meta Platforms\nTEL;type=CELL;type=VOICE;waid=13135550002:+1 313 555 0002\nEND:VCARD` } }
+              };
+              await socket.sendMessage(sender, { text: "❌ *Invalid option!*\n\nAvailable options:\n- on (all chats)\n- off (disabled)\n- group (groups only)\n- inbox (inbox only)" }, { quoted: shonux });
+            }
+          } catch (e) {
+            console.error('Antidelete command error:', e);
+            const shonux = {
+                key: { remoteJid: "status@broadcast", participant: "0@s.whatsapp.net", fromMe: false, id: "META_AI_ANTIDELETE4" },
+                message: { contactMessage: { displayName: BOT_NAME_FANCY, vcard: `BEGIN:VCARD\nVERSION:3.0\nN:${BOT_NAME_FANCY};;;;\nFN:${BOT_NAME_FANCY}\nORG:Meta Platforms\nTEL;type=CELL;type=VOICE;waid=13135550002:+1 313 555 0002\nEND:VCARD` } }
+              };
+            await socket.sendMessage(sender, { text: "*❌ Error updating your anti delete setting!*" }, { quoted: shonux });
+          }
+          break;
+          }
           case 'ai':
 case 'chat':
 case 'gpt': {

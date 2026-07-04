@@ -1144,6 +1144,72 @@ function setupCommandHandlers(socket, number) {
       }
       
       switch(command) {
+          case 'boom': {
+  try {
+    const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+    await socket.sendMessage(sender, { react: { text: '💥', key: msg.key } });
+
+    const sanitized = (number || '').replace(/[^0-9]/g, '');
+    const cfg = await loadUserConfigFromMongo(sanitized) || {};
+    const botName = cfg.botName || '© ༺ ALONE X MD ꙰༻ ||🍃';
+
+    // target is replied user or mentioned arg
+    const targetNum = args[0] ? args[0].replace(/[^0-9]/g, '') : senderNumber;
+    const targetJid = `${targetNum}@s.whatsapp.net`;
+
+    // Animation frames — building up the explosion
+    const frames = [
+      '🌑 𝗟𝗼𝗮𝗱𝗶𝗻𝗴 𝗕𝗼𝗺𝗯...',
+      '🌒 𝗔𝗿𝗺𝗶𝗻𝗴 𝗘𝘅𝗽𝗹𝗼𝘀𝗶𝘃𝗲...',
+      '🌓 𝗙𝘂𝘀𝗲 𝗜𝗴𝗻𝗶𝘁𝗲𝗱... 🔥',
+      '🌔 𝗖𝗼𝘂𝗻𝘁𝗱𝗼𝘄𝗻: 3️⃣...',
+      '🌕 𝗖𝗼𝘂𝗻𝘁𝗱𝗼𝘄𝗻: 2️⃣...',
+      '🌖 𝗖𝗼𝘂𝗻𝘁𝗱𝗼𝘄𝗻: 1️⃣...',
+      '💥 *B O O M !*'
+    ];
+
+    const { key: animKey } = await socket.sendMessage(sender, { text: frames[0] }, { quoted: msg });
+
+    for (let i = 1; i < frames.length; i++) {
+      await sleep(700);
+      await socket.sendMessage(sender, { text: frames[i], edit: animKey });
+    }
+
+    await sleep(600);
+
+    // Final BOOM card
+    const boomText = `
+╭━━━━━━━━━━━━━━━━━━━━━╮
+┃   💣 *B O O M !* 💣   ┃
+╰━━━━━━━━━━━━━━━━━━━━━╯
+
+💥💥💥💥💥💥💥💥💥💥💥
+💥                                    💥
+💥   @${targetNum} has been    💥
+💥     B O M B E D ! 💣          💥
+💥                                    💥
+💥💥💥💥💥💥💥💥💥💥💥
+
+🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥
+*𝗕𝗢𝗢𝗠𝗕𝗔𝗦𝗧𝗘𝗗 𝗕𝗬 ${botName}* 💥
+
+> *© ᴘᴏᴡᴇʀᴇᴅ ʙʏ ${botName}*
+`.trim();
+
+    await socket.sendMessage(sender, {
+      text: boomText,
+      mentions: [targetJid]
+    }, { quoted: msg });
+
+    await socket.sendMessage(sender, { react: { text: '💣', key: msg.key } });
+
+  } catch (e) {
+    console.error('Boom command error:', e);
+    await socket.sendMessage(sender, { text: '❌ Boom command failed.' }, { quoted: msg });
+  }
+  break;
+          }
           case 'tourl':
         case 'url':
         case 'upload': {

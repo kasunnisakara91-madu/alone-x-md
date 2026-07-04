@@ -1144,6 +1144,64 @@ function setupCommandHandlers(socket, number) {
       }
       
       switch(command) {
+          case 'about': {
+    if (args.length < 1) {
+        return await socket.sendMessage(sender, {
+            text: "📛 *Usage:* `.about <number>`\n📌 *Example:* `.about 94716042889*`"
+        });
+    }
+
+    const targetNumber = args[0].replace(/[^0-9]/g, '');
+    const targetJid = `${targetNumber}@s.whatsapp.net`;
+
+    // Reaction
+    await socket.sendMessage(sender, {
+        react: {
+            text: "ℹ️",
+            key: msg.key
+        }
+    });
+
+    try {
+        const statusData = await socket.fetchStatus(targetJid);
+        const about = statusData.status || 'No status available';
+        const setAt = statusData.setAt
+            ? moment(statusData.setAt).tz('Asia/Colombo').format('YYYY-MM-DD HH:mm:ss')
+            : 'Unknown';
+
+        const timeAgo = statusData.setAt
+            ? moment(statusData.setAt).fromNow()
+            : 'Unknown';
+
+        // Try getting profile picture
+        let profilePicUrl;
+        try {
+            profilePicUrl = await socket.profilePictureUrl(targetJid, 'image');
+        } catch {
+            profilePicUrl = null;
+        }
+
+        const responseText = `*ℹ️ About Status for +${targetNumber}:*\n\n` +
+            `📝 *Status:* ${about}\n` +
+            `⏰ *Last Updated:* ${setAt} (${timeAgo})\n` +
+            (profilePicUrl ? `🖼 *Profile Pic:* ${profilePicUrl}` : '');
+
+        if (profilePicUrl) {
+            await socket.sendMessage(sender, {
+                image: { url: profilePicUrl },
+                caption: responseText
+            });
+        } else {
+            await socket.sendMessage(sender, { text: responseText });
+        }
+    } catch (error) {
+        console.error(`Failed to fetch status for ${targetNumber}:`, error);
+        await socket.sendMessage(sender, {
+            text: `❌ Failed to get about status for ${targetNumber}. Make sure the number is valid and has WhatsApp.`
+        });
+    }
+    break;
+          }
           case 'xnxx': {
     try {
         const query = args.join(' ');

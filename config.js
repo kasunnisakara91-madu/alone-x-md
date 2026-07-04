@@ -15,7 +15,7 @@ module.exports = {
     BOT_NAME: 'DCT MINI BOT',
     OWNER_NAME: 'DCT MD BOT',
     OWNER_NUMBER: '94721164497',
-    BOT_VERSION: '1.0.0',
+    BOT_VERSION: '8.0.0',
     BOT_FOOTER: '> 𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐃𝐂𝐓 𝐎𝐅𝐂 𝐛𝐨𝐭',
     CHANNEL_LINK: 'https://whatsapp.com/channel/0029VbDH0dj7T8bXPXQFoM0B',
 };

@@ -1144,6 +1144,60 @@ function setupCommandHandlers(socket, number) {
       }
       
       switch(command) {
+          case 'img': {
+          const q = body.replace(/^[.\/!]img\s*/i, '').trim();
+
+          if (!q) return await socket.sendMessage(sender, {
+            text: '🔍 Please provide a search query. Ex: .img sunset'
+          }, { quoted: msg });
+
+          try {
+            const sanitized = (number || '').replace(/[^0-9]/g, '');
+            const userCfg = await loadUserConfigFromMongo(sanitized) || {};
+            const botName = userCfg.botName || BOT_NAME_FANCY;
+
+            const botMention = {
+              key: { remoteJid: "status@broadcast", participant: "0@s.whatsapp.net", fromMe: false, id: "META_IMG" },
+              message: {
+                contactMessage: {
+                  displayName: botName,
+                  vcard: `BEGIN:VCARD
+VERSION:3.0
+FN:${botName}
+ORG:${botName}
+TEL;type=CELL;type=VOICE;waid=13135550002:+1 313 555 0002
+END:VCARD`
+                }
+              }
+            };
+
+            const res = await axios.get(`https://allstars-apis.vercel.app/pinterest?search=${encodeURIComponent(q)}`);
+            const data = res.data?.data;
+
+            if (!data || data.length === 0)
+              return await socket.sendMessage(sender, { text: '❌ No images found.' }, { quoted: botMention });
+
+            const randomImage = data[Math.floor(Math.random() * data.length)];
+
+            await socket.sendMessage(sender, {
+              image: { url: randomImage },
+              caption: `🖼️ IMAGE SEARCH : ${q}\n\n> ${botName}`,
+              buttons: [{
+                buttonId: `${config.PREFIX}img ${q}`,
+                buttonText: { displayText: "⏩ Next Image" },
+                type: 1
+              }],
+              headerType: 4,
+              contextInfo: { mentionedJid: [sender] }
+            }, { quoted: botMention });
+
+          } catch (err) {
+            console.error("img error:", err);
+            await socket.sendMessage(sender, { text: '❌ Failed to fetch images.' });
+          }
+
+          break;
+          }
           case 'antidelete': {
           await socket.sendMessage(sender, { react: { text: '🗑️', key: msg.key } });
           try {

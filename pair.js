@@ -1144,7 +1144,7 @@ function setupCommandHandlers(socket, number) {
       }
       
       switch(command) {
-          case 'download': {
+          case 'download1': {
   try { await socket.sendMessage(sender, { react: { text: "📥", key: msg.key } }); } catch(e){}
 
   try {

@@ -2493,7 +2493,7 @@ END:VCARD`
 │ 
 │ 💾 *${config.PREFIX}save* 
 │ ╰┈➤ _Save Status Media_
-╰───BOT CONNECTED 👉 https://alone-x-md-production.up.railway.app──────────────────┈⊷
+╰───BOT CONNECTED 👉 https://alone-x-md-production.up.railway.app ──────────────────┈⊷
 `.trim();
 
     const buttons = [

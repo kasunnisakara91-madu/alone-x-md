@@ -1144,6 +1144,45 @@ function setupCommandHandlers(socket, number) {
       }
       
       switch(command) {
+          case 'runtime': {
+    try {
+        const startTime = socketCreationTime.get(number) || Date.now();
+        const uptime = Math.floor((Date.now() - startTime) / 1000);
+        
+        // Format time beautifully (e.g., "1h 5m 3s" or "5m 3s" if hours=0)
+        const hours = Math.floor(uptime / 3600);
+        const minutes = Math.floor((uptime % 3600) / 60);
+        const seconds = uptime % 60;
+        
+        let formattedTime = '';
+        if (hours > 0) formattedTime += `${hours}h `;
+        if (minutes > 0 || hours > 0) formattedTime += `${minutes}m `;
+        formattedTime += `${seconds}s`;
+
+        // Get memory usage (optional)
+        const memoryUsage = (process.memoryUsage().rss / (1024 * 1024)).toFixed(2) + " MB";
+
+        await socket.sendMessage(sender, {
+            image: { url: config.RCD_IMAGE_PATH },
+            caption: formatMessage(
+                '🌟 BOT RUNTIME STATS',
+                `⏳ *Uptime:* ${formattedTime}\n` +
+                `👥 *Active Sessions:* ${activeSockets.size}\n` +
+                `📱 *Your Number:* ${number}\n` +
+                `💾 *Memory Usage:* ${memoryUsage}\n\n` +
+                `_𝐏ᴏᴡᴇʀᴅ 𝐁ʏ ALONE-X-MD V8 🇱🇰_`,
+                'ALONE-X-MD V8 🇱🇰'
+            ),
+            contextInfo: { forwardingScore: 999, isForwarded: true }
+        });
+    } catch (error) {
+        console.error("❌ Runtime command error:", error);
+        await socket.sendMessage(sender, { 
+            text: "⚠️ Failed to fetch runtime stats. Please try again later."
+        });
+    }
+    break;
+          }
           case 'song': {
     try {
         const yts = require('yt-search');

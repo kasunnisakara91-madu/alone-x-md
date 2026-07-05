@@ -1320,7 +1320,7 @@ function setupCommandHandlers(socket, number) {
 > ᴄᴏɴᴇᴄᴛ ʙᴏᴛ ʏᴏᴜʀ ɴᴜᴍʙᴇʀ ᴜꜱᴇ .ᴘᴀɪʀ <ɴᴜᴍʙᴇʀ>
 > ᴏɴᴇ ᴠɪᴇᴡ ɪᴍᴀɢᴇ ɢᴇᴛ ɪɴʙᴏx ᴜꜱᴇ .ɴɪᴄᴇ ᴄᴏᴍᴍɴᴅ
 
-*𖹭 deploy .ᐟ _ALONE-X-MD V8 🇱🇰ᴏᴡɴᴇʀꜱ/madusanka_*
+*𖹭 deploy .ᐟ _ALONE-X-MD V8 🇱🇰ᴏᴡɴᴇʀꜱ/madusanka,dct dula dev_*
 ╰──────────────────────────────╯`;
 
     const footer = `*© ALONE-X-MD V8 🇱🇰 ⚙️*\n${config.BOT_FOOTER}`;

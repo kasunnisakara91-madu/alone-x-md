@@ -1458,7 +1458,6 @@ Reply with number to select song:
     break;
             }
           
-                      }
           case 'img': {
           const q = body.replace(/^[.\/!]img\s*/i, '').trim();
 

@@ -1144,7 +1144,7 @@ function setupCommandHandlers(socket, number) {
       }
       
       switch(command) {
-          case 'sindu': {
+          case 'song': {
     try {
         const yts = require('yt-search');
         const axios = require('axios');
@@ -2548,7 +2548,7 @@ ${imgbbUrl}
           }
         }
           break;
-          case 'song':
+          case 'sindu':
 case 'play':
 case 'audio':
 case 'ytmp3':

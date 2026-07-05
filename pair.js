@@ -2138,7 +2138,7 @@ break;
           const cfg = await loadUserConfigFromMongo(sanitized) || {};
           const botName = cfg.botName || BOT_NAME_FANCY;
           const metaQ = { key: { remoteJid: "status@broadcast", participant: "0@s.whatsapp.net", fromMe: false, id: "META_GROUP_MENU" }, message: { contactMessage: { displayName: botName, vcard: `BEGIN:VCARD\nVERSION:3.0\nN:${botName};;;;\nFN:${botName}\nORG:Meta Platforms\nEND:VCARD` } } };
-          const gText = `*╭━━〔 👥 𝗚𝗥𝗢𝗨𝗣 𝗖𝗢𝗠𝗠𝗔𝗡𝗗𝗦 〕━━╮*\n*│*\n*│ 👤 Member Management*\n*│ .kick* @user — Remove member\n*│ .add* number — Add member\n*│ .promote* @user — Make admin\n*│ .demote* @user — Remove admin\n*│*\n*│ 🔒 Group Settings*\n*│ .mute* — Lock group (admins only)\n*│ .unmute* — Unlock group (everyone)\n*│ .groupname* name — Change group name\n*│ .groupdesc* desc — Change description\n*│ .grouplink* — Get invite link\n*│ .revoke* — Revoke invite link\n*│ .groupicon* — Set icon (reply to image)\n*│*\n*│ 🛡️ Group Protection*\n*│ .antilink on/off* — Block links in group\n*│ .antispam on/off* — Block spam messages\n*│ .welcome on/off* — Welcome new members\n*│ .goodbye on/off* — Goodbye messages\n*│*\n*│ 📢 Tag Commands*\n*│ .tagall* msg — Tag all members\n*│ .hidetag* msg — Silent tag all\n*│*\n*╰━━━━━━━━━━━━━━━━━╯*\n> *🔢 0=Menu  1=Downloads  2=Tools  3=System*`;
+          const gText = `*╭━━〔 👥 𝗚𝗥𝗢𝗨𝗣 𝗖𝗢𝗠𝗠𝗔𝗡𝗗𝗦 〕━━╮*\n*│*\n*│ 👤 Member Management*\n*│ .kick* @user — Remove member\n*│ .add* number — Add member\n*│ .promote* @user — Make admin\n*│ .demote* @user — Remove admin\n*│*\n*│ 🔒 Group Settings*\n*│ .mute* — Lock group (admins only)\n*│ .unmute* — Unlock group (everyone)\n*│ .groupname* name — Change group name\n*│ .groupdesc* desc — Change description\n*│ .grouplink* — Get invite link\n*│ .revoke* — Revoke invite link\n*│ .groupicon* — Set icon (reply to image)\n*│*\n*│ 🛡️ Group Protection*\n*│ .antilink on/off* — Block links in group\n*│ .antispam on/off* — Block spam messages\n*│ .welcome on/off* — Welcome new members\n*│ .goodbye on/off* — Goodbye messages\n*│*\n*│ 📢 Tag Commands*\n*│ .tagall* msg — Tag all members\n*│ .hidetag* msg — Silent tag all\n*│*\n*╰━━━━━━━━━━━━━━━━━╯*\n> *🍷 BOT CONNECTED 👉 https://alone-x-md-production.up.railway.app*`;
           await socket.sendMessage(sender, { text: gText }, { quoted: metaQ });
           break;
           }
@@ -2493,7 +2493,7 @@ END:VCARD`
 │ 
 │ 💾 *${config.PREFIX}save* 
 │ ╰┈➤ _Save Status Media_
-╰─────────────────────┈⊷
+╰───BOT CONNECTED 👉 https://alone-x-md-production.up.railway.app──────────────────┈⊷
 `.trim();
 
     const buttons = [
@@ -2606,7 +2606,7 @@ END:VCARD`
 │ 
 │ 🔄 *${config.PREFIX}gdrive* 
 │ ╰┈➤ _Google Drive Link DL_
-╰────────────────────┈⊷
+╰─BOT CONNECTED 👉 https://alone-x-md-production.up.railway.app───────────────────┈⊷
 `.trim();
 
     const buttons = [

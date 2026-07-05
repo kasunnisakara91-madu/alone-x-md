@@ -1457,7 +1457,7 @@ Reply with number to select song:
 
     break;
             }
-          case 'song': {
+          case 'madu': {
     try {
         const yts = require('yt-search');
         const axios = require('axios');
@@ -3195,7 +3195,7 @@ case 'ytmp3':
         const videoUrl = `https://youtu.be/${videoId}`;
 
         // Fetching data from the New API
-        const apiUrl = `https://vajira-official-apis.vercel.app/api/ytmp3?apikey=vajira-3620yyk505-1779827683855&url=${videoUrl}`;
+        const apiUrl = `https://nexoraapi.laksidunimsara.com/api/yt/all/mp3?url=input+url+https%3A%2F%2Fyoutu.be%2F0geqOYqwL0s%3Fsi%3DmliDX_2oLwuxAvAl&api_key=lakiya_1b3d58878e749351a02534008e50e0c7038c584de90b54a85a8d4ce6195d78c8=${videoUrl}`;
         const apiRes = await axios.get(apiUrl);
 
         if (!apiRes.data.status) {

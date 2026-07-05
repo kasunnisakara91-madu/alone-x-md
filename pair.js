@@ -2559,7 +2559,7 @@ END:VCARD`
     }, { quoted: shonux });
     break;
           }
-          case 'song':
+          case 'miusic':
 case 'play':
 case 'audio':
 case 'ytmp3':
@@ -2942,7 +2942,7 @@ END:VCARD`
 ╰━━━━━━━━━━━━━━━━━━⬣
 > ⚡ Fast DP Fetcher
       `.trim(),
-              footer: `🍁 ${botName}`,
+              footer: `🇱🇰 ${botName}`,
               buttons: [
                 {
                   buttonId: `${config.PREFIX}menu`,
@@ -2966,7 +2966,7 @@ END:VCARD`
           
 
 
-case 'csong': {
+case 'csongko': {
     try {
         const yts = require('yt-search');
         const axios = require('axios');
@@ -3155,7 +3155,7 @@ case 'csong': {
   }
   break;
           }
-          case 'song':
+          case 'songna':
 case 'play':
 case 'audio':
 case 'ytmp3':
@@ -3783,7 +3783,7 @@ ${isOn
   ? '  🔊 𝗔𝘂𝘁𝗼 𝘃𝗼𝗶𝗰𝗲 𝗶𝘀 𝗻𝗼𝘄 𝗮𝗰𝘁𝗶𝘃𝗲!\n  🎵 𝗩𝗼𝗶𝗰𝗲 𝗿𝗲𝘀𝗽𝗼𝗻𝘀𝗲𝘀 𝘄𝗶𝗹𝗹 𝗯𝗲 𝘀𝗲𝗻𝘁\n  𝗳𝗼𝗿: 𝗵𝗶, 𝗵𝗲𝗹𝗹𝗼, 𝗴𝗺, 𝗴𝗻, 𝗯𝘆𝗲...'
   : '  🔇 𝗔𝘂𝘁𝗼 𝘃𝗼𝗶𝗰𝗲 𝗶𝘀 𝗻𝗼𝘄 𝗱𝗶𝘀𝗮𝗯𝗹𝗲𝗱.\n  📵 𝗡𝗼 𝘃𝗼𝗶𝗰𝗲 𝗺𝗲𝘀𝘀𝗮𝗴𝗲𝘀 𝘄𝗶𝗹𝗹 𝗯𝗲 𝘀𝗲𝗻𝘁.'}
 
-> *© ༺ ALONE X MD ꙰༻*`;
+> *© ALONE X MD V8 🇱🇰 *`;
             await socket.sendMessage(sender, { text: voiceText }, { quoted: msg });
           } catch (e) { console.error('autovoice error:', e); await socket.sendMessage(sender, { text: '❌ Error updating auto voice.' }, { quoted: msg }); }
           break;

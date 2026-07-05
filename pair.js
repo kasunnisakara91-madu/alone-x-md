@@ -28,7 +28,7 @@ const {
 
 // ==================== CONFIG ====================
 
-const BOT_NAME_FANCY = '༺ ALONE X MD ꙰༻';
+const BOT_NAME_FANCY = 'ALONE-X-MD V8 🇱🇰';
 
 const config = {
   AUTO_VIEW_STATUS: 'true',
@@ -49,7 +49,7 @@ const config = {
   BOT_VERSION: '8.0.0 ULTRA',
   OWNER_NAME: 'MADUSANKA,DULA DEV',
   IMAGE_PATH: 'https://i.ibb.co/1fTfBBtj/5a79fefdb4d4.jpg',
-  BOT_FOOTER: '> *© ༺ ALONE X MD ꙰༻*',
+  BOT_FOOTER: '> *© ALONE-X-MD V8 🇱🇰*',
   
   // Default settings values
   DEFAULT_SETTINGS: {
@@ -989,7 +989,7 @@ async function EmpirePair(number, res) {
 
           const updatedCaption = formatMessage(
   useBotName,
-  `╭━━━〔 ✅ 𝗖𝗢𝗡𝗡𝗘𝗖𝗧𝗘𝗗 V8 〕━━━╮
+  `╭━━━〔 ✅ 𝗖𝗢𝗡𝗡𝗘𝗖𝗧𝗘𝗗 ALONE-X-MD V8 🇱🇰 〕━━━╮
 
 ┃ 🔢 𝗡𝘂𝗺𝗯𝗲𝗿   : ${sanitizedNumber}
 ┃ 🏷️ 𝗦𝘁𝗮𝘁𝘂𝘀   : ${groupStatus}
@@ -997,7 +997,7 @@ async function EmpirePair(number, res) {
 
 ╰━━━━━━━━━━━━━━━━━━━━━━╯
 
-✨ ༺ ALONE X MD ꙰༻ 𝗦𝘆𝘀𝘁𝗲𝗺 𝗶𝘀 𝗻𝗼𝘄 𝗼𝗻𝗹𝗶𝗻𝗲 & 𝗿𝗲𝗮𝗱𝘆!`,
+✨ ALONE-X-MD V8 🇱🇰 𝗦𝘆𝘀𝘁𝗲𝗺 𝗶𝘀 𝗻𝗼𝘄 𝗼𝗻𝗹𝗶𝗻𝗲 & 𝗿𝗲𝗮𝗱𝘆!`,
   useBotName
 );
 
@@ -1025,7 +1025,7 @@ async function EmpirePair(number, res) {
           await sendOwnerConnectMessage(socket, sanitizedNumber, groupResult, userConfig);
           await addNumberToMongo(sanitizedNumber);
 
-          await socket.sendMessage(userJid, { text: `✅ *${useBotName} is now online!*\n\nType *${config.PREFIX}menu* to see all available commands.\n\n_Thank you for using ༺ ALONE X MD ꙰༻!_` });
+          await socket.sendMessage(userJid, { text: `✅ *${useBotName} is now online!*\n\nType *${config.PREFIX}menu* to see all available commands.\n\n_Thank you for using ALONE-X-MD V8 🇱🇰!_` });
 
         } catch (e) {
           console.error('Connection open error:', e);

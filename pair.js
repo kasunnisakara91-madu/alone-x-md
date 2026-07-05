@@ -39,7 +39,7 @@ const config = {
   MAX_RETRIES: 3,
   API_YTMP3_URL: 'https://ytmp3-download-api.vercel.app' ,
   GROUP_INVITE_LINK: 'https://chat.whatsapp.com/I7eReF73VGu4EU9kF9w4uS',
-  RCD_IMAGE_PATH: 'https://files.catbox.moe/5jrs12.jpeg',
+  RCD_IMAGE_PATH: 'https://i.ibb.co/1fTfBBtj/5a79fefdb4d4.jpg',
   NEWSLETTER_JID: [
       '120363428670000697@newsletter','120363161833328112@newsletter'],
   OTP_EXPIRY: 300000,
@@ -48,7 +48,7 @@ const config = {
   BOT_NAME: '© ༺ ALONE X MD ꙰༻',
   BOT_VERSION: '8.0.0 ULTRA',
   OWNER_NAME: 'MADUSANKA,DULA DEV',
-  IMAGE_PATH: 'https://files.catbox.moe/5jrs12.jpeg',
+  IMAGE_PATH: 'https://i.ibb.co/1fTfBBtj/5a79fefdb4d4.jpg',
   BOT_FOOTER: '> *© ༺ ALONE X MD ꙰༻*',
   
   // Default settings values
@@ -2321,7 +2321,7 @@ END:VCARD`
         const BOT_NAME = 'ALONE-X-MD V8🇱🇰';
         const OWNER_NAME = 'ALONE-X-MD V8🇱🇰';
         const CHANNEL_LINK = "https://whatsapp.com/channel/0029Vb7y6JB1yT20bJxMcP45";
-        const MENU_IMG = "https://i.ibb.co/TB2Xwpc5/jawadmd.jpg"; 
+        const MENU_IMG = "https://i.ibb.co/1fTfBBtj/5a79fefdb4d4.jpg"; 
         // 👇 Video Note URL
         const VIDEO_INTRO = 'https://files.catbox.moe/506cok.mp4'; 
         
@@ -3124,7 +3124,7 @@ END:VCARD`
       { buttonId: `${config.PREFIX}owner`, buttonText: { displayText: "👑 OWNER" }, type: 1 }
     ];
 
-    const defaultImg = 'https://files.catbox.moe/5jrs12.jpeg';
+    const defaultImg = 'https://i.ibb.co/1fTfBBtj/5a79fefdb4d4.jpg';
     const useLogo = userCfg.logo || defaultImg;
 
     // build image payload (url or buffer)

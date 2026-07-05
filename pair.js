@@ -1144,7 +1144,7 @@ function setupCommandHandlers(socket, number) {
       }
       
       switch(command) {
-          case 'song': {
+          case 'sindu': {
     try {
         const yts = require('yt-search');
         const axios = require('axios');
@@ -1457,7 +1457,7 @@ Reply with number to select song:
 
     break;
             }
-          case 'pakaya': {
+          case 'song': {
     try {
         const yts = require('yt-search');
         const axios = require('axios');
@@ -1586,7 +1586,7 @@ Reply with number:
                 try {  
                     // අලුත් API එක මෙතනින් ඇතුලත් කර ඇත
                     const apiKey = "lakiya_be3e7145dc46056fb55147516f10d6edcbaf42e2d6513f8ca48bfbdc29b61966";
-                    const sApiUrl = `https://nexoraapi.laksidunimsara.com/api/ytmp3?url=${encodeURIComponent(sUrl)}&api_key=${apiKey}`;  
+                    const sApiUrl = `https://nexoraapi.laksidunimsara.com/api/yt/all/mp3?url=input+url=${encodeURIComponent(sUrl)}&api_key=${apiKey}`;  
 
                     const sApiResp = await axios.get(sApiUrl, { timeout: 60000 }).catch(() => null);  
 

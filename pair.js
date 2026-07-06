@@ -5670,7 +5670,7 @@ case 'alive': {
           // ✅ OWNER DETAILS
           const ownerName = "༺ ALONE X MD ꙰༻";
           const ownerNumber = "94787940686,94781629812"; // without +
-          const displayNumber = "+94 78 794 0686","+94 78 162 9812";
+          const displayNumber = "+94 78 794 0686,+94 78 162 9812";
           const email = "alone-x-md-owner@email.com"; // optional
 
           // ✅ VCARD

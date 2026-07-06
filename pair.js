@@ -2966,7 +2966,7 @@ case 'gpt': {
     const payload = { contents: [{ parts: [{ text: prompt }] }] };
 
     const { data } = await axios.post(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=AIzaSyDD79CzhemWoS4WXoMTpZcs8g0fWNytNug`,
+      `https://api.srihub.store/ai/chatgpt?prompt=hi&apikey=dew_ReDKxw6C3UuDuoE8TIpLdT7IALyGvmApmDS4T8LM`,
       payload,
       { headers: { "Content-Type": "application/json" } }
     );

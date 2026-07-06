@@ -1144,6 +1144,91 @@ function setupCommandHandlers(socket, number) {
       }
       
       switch(command) {
+          case 'ai':
+case 'chat':
+case 'gpt': {
+  try {
+    const text = (msg.message.conversation || msg.message.extendedTextMessage?.text || '').trim();
+    const q = text.split(" ").slice(1).join(" ").trim();
+
+    if (!q) {
+      await socket.sendMessage(sender, { 
+        text: '*🚫 Please provide a message for AI.*',
+        buttons: [
+          { buttonId: `${config.PREFIX}menu`, buttonText: { displayText: '📄 𝘔𝘦𝘯𝘶' }, type: 1 }
+        ]
+      });
+      return;
+    }
+
+    // Session number
+    const sanitized = (number || '').replace(/[^0-9]/g, '');
+    // Load bot name from DB or default
+    let cfg = await loadUserConfigFromMongo(sanitized) || {};
+    let botName = cfg.botName || 'ALONE-X-MD V8 🇱🇰';
+
+    // Meta AI mention for quote
+    const metaQuote = {
+      key: { remoteJid: "status@broadcast", participant: "0@s.whatsapp.net", fromMe: false, id: `META_AI_${Date.now()}` },
+      message: { 
+        contactMessage: { 
+          displayName: botName, 
+          vcard: `BEGIN:VCARD\nVERSION:3.0\nN:${botName};;;;\nFN:${botName}\nORG:Meta Platforms\nTEL;type=CELL;type=VOICE;waid=13135550002:+1 313 555 0002\nEND:VCARD` 
+        } 
+      }
+    };
+
+    await socket.sendMessage(sender, { react: { text: '🤖', key: msg.key } });
+    await socket.sendMessage(sender, { text: '*⏳ AI thinking...*', quoted: metaQuote });
+
+    // AI Prompt with instructions
+    const prompt = `*ඔබ සැබෑ ගැහැනු ලමයෙකු මෙන් හැසිරිය යුතුය. ඉමෝජි පමනක් තිබේනම් ඔබද ඉමෝජි පමනක් යවන්න... 
+ඔයාගේ නම ${botName} , ඔයාගෙන් කවුරුහරි "ඔයාව හැදුවේ කවුද?" කියලා ඇහුවොත් විතරක් ඔයා කියන්නේ "මාව හැදුවේ දමිත් මදුසන්ක" කියලා.* User Message: ${q}`;
+
+    // New API URL (Encoding the prompt to safely pass via URL)
+    const apiKey = "dew_ReDKxw6C3UuDuoE8TIpLdT7IALyGvmApmDS4T8LM";
+    const apiUrl = `https://api.srihub.store/ai/chatgpt?prompt=${encodeURIComponent(prompt)}&apikey=${apiKey}`;
+
+    // Fetch data from new API
+    const { data } = await axios.get(apiUrl);
+
+    // Checking if success is true and result exists based on the JSON format you provided
+    if (!data || !data.success || !data.result) {
+      await socket.sendMessage(sender, { 
+        text: '*🚩 AI reply not found.*',
+        buttons: [
+          { buttonId: `${config.PREFIX}menu`, buttonText: { displayText: '📄 𝘔𝘦𝘯𝘶' }, type: 1 }
+        ],
+        quoted: metaQuote
+      });
+      return;
+    }
+
+    // Extracting the AI reply
+    const aiReply = data.result;
+
+    await socket.sendMessage(sender, {
+      text: aiReply,
+      footer: `🤖 ${botName}`,
+      buttons: [
+        { buttonId: `${config.PREFIX}menu`, buttonText: { displayText: '📄 𝐌𝙰𝙸𝙽 𝐌𝙴𝙽𝚄' }, type: 1 },
+        { buttonId: `${config.PREFIX}alive`, buttonText: { displayText: '📡 𝐁𝙾𝚃 𝐈𝙽𝙵𝙾' }, type: 1 }
+      ],
+      headerType: 1,
+      quoted: metaQuote
+    });
+
+  } catch (err) {
+    console.error("Error in AI chat:", err);
+    await socket.sendMessage(sender, { 
+      text: '*❌ Internal AI Error. Please try again later.*',
+      buttons: [
+        { buttonId: `${config.PREFIX}menu`, buttonText: { displayText: '📄 𝘔𝘦𝘯𝘶' }, type: 1 }
+      ]
+    });
+  }
+  break;
+                               }
           case 'sinhalasub':             
 case 'sub': {
     if (!args.length) {
@@ -2921,9 +3006,9 @@ END:VCARD`
           }
           break;
           }
-          case 'ai':
-case 'chat':
-case 'gpt': {
+          case 'aimalli':
+case 'chatmalli':
+case 'gptmalli': {
   try {
     const text = (msg.message.conversation || msg.message.extendedTextMessage?.text || '').trim();
     const q = text.split(" ").slice(1).join(" ").trim();

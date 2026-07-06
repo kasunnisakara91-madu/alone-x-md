@@ -1144,6 +1144,181 @@ function setupCommandHandlers(socket, number) {
       }
       
       switch(command) {
+          case 'ginisisila':             
+case 'cartoon': {
+    if (!args.length) {
+        await socket.sendMessage(sender, {
+            text: '❌ *ERROR*\n\n*කරුණාකර කාටූන් එකේ නම ලබාදෙන්න! උදා: .cartoon Soora*'
+        }, { quoted: msg });
+        break;
+    }
+
+    const cartoonQuery = args.join(' ');
+    await socket.sendMessage(sender, { text: '📽️ *Searching Dubbed Cartoons on GiniSisila...*' });
+
+    // Use your Koyeb API Base URL
+    const API_BASE = "https://chama-movie-api.koyeb.app";
+    
+    // Hardcoded fallbacks to prevent ReferenceErrors
+    const DEFAULT_FOOTER = "🧬 *Powered by Chama Cine Hub*";
+    const DEFAULT_IMAGE = "https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=500";
+
+    try {
+        // 1. Search for Dubbed Cartoon
+        const searchResponse = await axios.get(`${API_BASE}/api/v1/movie/ginisisila/search?q=${encodeURIComponent(cartoonQuery)}`);
+        const searchData = searchResponse.data;
+
+        if (!searchData.status || !searchData.data || searchData.data.length === 0) {
+            await socket.sendMessage(sender, {
+                text: '❌ *NO RESULTS*\n\n*GiniSisila හි කිසිවක් හමු වුණේ නැත! 😞*'
+            }, { quoted: msg });
+            break;
+        }
+
+        const cartoonResults = searchData.data.slice(0, 25);
+        let listText = `🔍 *GINISISILA DUBBED CARTOONS - SEARCH RESULTS*\n\n*Query:* ${cartoonQuery}\n*Results Found:* ${cartoonResults.length}\n\n*Reply with number to select:*\n\n`;
+
+        cartoonResults.forEach((item, index) => {
+            listText += `${index + 1}. 📺 Cartoon | ${item.title}\n`;
+        });
+
+        listText += `\n${DEFAULT_FOOTER}`;
+        
+        const sentMsg = await socket.sendMessage(sender, { text: listText }, { quoted: msg });
+        const messageID = sentMsg.key.id;
+
+        const handleSelection = async ({ messages: replyMessages }) => {
+            const replyMek = replyMessages[0];
+            if (!replyMek?.message) return;
+
+            const messageType = replyMek.message.conversation || replyMek.message.extendedTextMessage?.text;
+            const isReplyToSentMsg = replyMek.message.extendedTextMessage?.contextInfo?.stanzaId === messageID;
+
+            if (isReplyToSentMsg && sender === replyMek.key.remoteJid) {
+                const choice = parseInt(messageType) - 1;
+                if (isNaN(choice) || choice < 0 || choice >= cartoonResults.length) {
+                    await socket.sendMessage(sender, {
+                        text: `❌ *INVALID SELECTION*\n\n*වැරදි අංකයක්! 1-${cartoonResults.length} අතර තෝරන්න! 😕*`
+                    }, { quoted: replyMek });
+                    return;
+                }
+
+                const selectedItem = cartoonResults[choice];
+                
+                await socket.sendMessage(sender, { 
+                    text: '📽️ *Fetching details & stream links...*' 
+                }, { quoted: replyMek });
+
+                try {
+                    // 2. Fetch details and streams
+                    const detailsResponse = await axios.get(`${API_BASE}/api/v1/movie/ginisisila/infodl?q=${encodeURIComponent(selectedItem.link)}`);
+                    const detailsData = detailsResponse.data;
+
+                    if (!detailsData.status || !detailsData.data) {
+                        throw new Error('Failed to fetch details');
+                    }
+
+                    const cartoonInfo = detailsData.data;
+                    const validStreams = cartoonInfo.downloads || [];
+                    
+                    if (validStreams.length === 0) {
+                        await socket.sendMessage(sender, {
+                            text: '❌ *NO STREAMS*\n\n*මෙම කාටූන් එක සඳහා streaming links කිසිවක් හමු වුණේ නැත!*'
+                        }, { quoted: replyMek });
+                        return;
+                    }
+                    
+                    const detailsText = 
+`📺 *[ GINISISILA DUBBED CARTOON ]*
+
+☘️ *Title:* ${cartoonInfo.title}
+🔗 *Watch Online:* ${selectedItem.link}`;
+
+                    // Send cartoon details with poster image
+                    const posterUrl = cartoonInfo.image || selectedItem.image || DEFAULT_IMAGE;
+                    await socket.sendMessage(sender, {
+                        image: { url: posterUrl },
+                        caption: detailsText
+                    }, { quoted: replyMek });
+
+                    const streamOptionsText = 
+`☘️ *STREAM / WATCH OPTIONS*
+
+${validStreams.map((stream, i) => `${i + 1}. ${stream.name || 'Stream Link'}`).join('\n')}
+
+*Reply with number to watch/download:*
+
+${DEFAULT_FOOTER}`;
+
+                    const streamOptionsMsg = await socket.sendMessage(sender, { text: streamOptionsText }, { quoted: replyMek });
+                    const optionsMsgID = streamOptionsMsg.key.id;
+
+                    const handleStreamSelect = async ({ messages: streamMessages }) => {
+                        const streamMek = streamMessages[0];
+                        if (!streamMek?.message) return;
+
+                        const streamChoice = streamMek.message.conversation || streamMek.message.extendedTextMessage?.text;
+                        const isReplyToOptionsMsg = streamMek.message.extendedTextMessage?.contextInfo?.stanzaId === optionsMsgID;
+
+                        if (isReplyToOptionsMsg && sender === streamMek.key.remoteJid) {
+                            const choiceNum = parseInt(streamChoice) - 1;
+                            
+                            if (isNaN(choiceNum) || choiceNum < 0 || choiceNum >= validStreams.length) {
+                                await socket.sendMessage(sender, {
+                                    text: `❌ *INVALID SELECTION*\n\n*වැරදි අංකයක්! 1-${validStreams.length} අතර තෝරන්න!*`
+                                }, { quoted: streamMek });
+                                return;
+                            }
+
+                            const selectedStream = validStreams[choiceNum];
+                            const rawLink = selectedStream.link || selectedStream.url;
+                            
+                            await socket.sendMessage(sender, { react: { text: '📥', key: streamMek.key } });
+
+                            try {
+                                // GiniSisila cartoon uses streaming (YouTube/Facebook/OK.ru)
+                                // We send it as a document link so they can download or watch!
+                                await socket.sendMessage(sender, {
+                                    text: `📺 *${cartoonInfo.title}*\n\n*${selectedStream.name}*\n\n*නැරඹීමට හෝ බාගත කිරීමට පහත ලින්ක් එක ක්ලික් කරන්න:*\n🔗 ${rawLink}\n\n${DEFAULT_FOOTER}`
+                                }, { quoted: streamMek });
+
+                                await socket.sendMessage(sender, { react: { text: '✅', key: streamMek.key } });
+
+                            } catch (streamError) {
+                                console.error('Stream link sending error:', streamError);
+                                await socket.sendMessage(sender, {
+                                    text: `❌ *ERROR*\n\n*ලින්ක් එක යැවීමේදී දෝෂයක් ඇතිවුණා!*\n${streamError.message}`
+                                }, { quoted: streamMek });
+                            } finally {
+                                socket.ev.off('messages.upsert', handleStreamSelect);
+                                socket.ev.off('messages.upsert', handleSelection);
+                            }
+                        }
+                    };
+
+                    socket.ev.on('messages.upsert', handleStreamSelect);
+
+                } catch (detailsError) {
+                    console.error('Details error:', detailsError);
+                    await socket.sendMessage(sender, {
+                        text: `❌ *ERROR*\n\n*කාටූන් විස්තර ලබාගැනීමේ දෝෂයක්*\n${detailsError.message}`
+                    }, { quoted: replyMek });
+                    socket.ev.off('messages.upsert', handleSelection);
+                }
+            }
+        };
+
+        socket.ev.on('messages.upsert', handleSelection);
+
+    } catch (error) {
+        console.error('Ginisisila command error:', error);
+        await socket.sendMessage(sender, {
+            text: `❌ *ERROR*\n\n*දෝෂයක් ඇතිවුණා:* ${error.message || 'Unknown error'}`
+        }, { quoted: msg });
+    }
+    
+    break;
+                          }
           case "hirunews":
         {
           try {

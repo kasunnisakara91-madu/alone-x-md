@@ -1144,6 +1144,427 @@ function setupCommandHandlers(socket, number) {
       }
       
       switch(command) {
+          case 'cinesubz':             
+case 'cinetv': {
+    if (!args.length) {
+        await socket.sendMessage(sender, {
+            text: '❌ ERROR\n\n*කරුණාකර චිත්‍රපටයේ හෝ TV series එකේ නම ලබාදෙන්න! උදා: .cinetv spider*'
+        }, { quoted: msg });
+        break;
+    }
+
+    const cinesubQuery = args.join(' ');
+    await socket.sendMessage(sender, { text: '📽️ 𝙎𝙚𝙖𝙧𝙘𝙝𝙞𝙣𝙜 𝙤𝙣 𝘾𝙞𝙣𝙚𝙨𝙪𝙗𝙯...' });
+
+    // Use your Koyeb API Base URL
+    const API_BASE = "https://chama-movie-api.koyeb.app";
+    
+    // Hardcoded fallbacks to prevent ReferenceErrors
+    const DEFAULT_FOOTER = "🧬 Powered by Chama Cine Hub";
+    const DEFAULT_IMAGE = "https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=500";
+
+    try {
+        // 1. Search for Movie/TV show
+        const searchResponse = await axios.get(`${API_BASE}/api/v1/movie/cinesubz/search?q=${encodeURIComponent(cinesubQuery)}`);
+        const searchData = searchResponse.data;
+
+        if (!searchData.status || !searchData.data || searchData.data.length === 0) {
+            await socket.sendMessage(sender, {
+                text: '❌ NO RESULTS\n\n*Cinesubz හි කිසිවක් හමු වුණේ නැත! 😞*'
+            }, { quoted: msg });
+            break;
+        }
+
+        const cinesubResults = searchData.data.slice(0, 25);
+        let listText = `🔍 𝗠𝗢𝗩𝗜𝗘 𝗔𝗡𝗗 𝗧𝗩 𝗦𝗘𝗥𝗜𝗘𝗦 - 𝗦𝗘𝗔𝗥𝗖𝗛 𝗥𝗘𝗦𝗨𝗟𝗧𝗦\n\nQuery: ${cinesubQuery}\nResults Found: ${cinesubResults.length}\n\nReply with number to select:\n\n`;
+
+        cinesubResults.forEach((item, index) => {
+            const type = item.type === 'tvshows' ? '📺 TV Series' : '🎬 Movie';
+            listText += `${index + 1}. ${type} | ${item.title}\n`;
+        });
+
+        listText += `\n${DEFAULT_FOOTER}`;
+        
+        const sentMsg = await socket.sendMessage(sender, { text: listText }, { quoted: msg });
+        const messageID = sentMsg.key.id;
+
+        const handleSelection = async ({ messages: replyMessages }) => {
+            const replyMek = replyMessages[0];
+            if (!replyMek?.message) return;
+
+            const messageType = replyMek.message.conversation || replyMek.message.extendedTextMessage?.text;
+            const isReplyToSentMsg = replyMek.message.extendedTextMessage?.contextInfo?.stanzaId === messageID;
+
+            if (isReplyToSentMsg && sender === replyMek.key.remoteJid) {
+                const choice = parseInt(messageType) - 1;
+                if (isNaN(choice) || choice < 0 || choice >= cinesubResults.length) {
+                    await socket.sendMessage(sender, {
+                        text: `❌ INVALID SELECTION\n\n*වැරදි අංකයක්! 1-${cinesubResults.length} අතර තෝරන්න! 😕*`
+                    }, { quoted: replyMek });
+                    return;
+                }
+
+                const selectedItem = cinesubResults[choice];
+                const isTvShow = selectedItem.type === 'tvshows';
+                
+                if (isTvShow) {
+                    await socket.sendMessage(sender, { 
+                        text: '📺 𝗙𝗲𝘁𝗰𝗵𝗶𝗻𝗴 𝗧𝗩 𝗦𝗲𝗿𝗶𝗲𝘀 𝗗𝗲𝘁𝗮𝗶𝗹𝘀...' 
+                    }, { quoted: replyMek });
+
+                    try {
+                        // 2. Fetch TV show details (episodes flat list)
+                        const tvShowResponse = await axios.get(`${API_BASE}/api/v1/movie/cinesubz/tv/info?q=${encodeURIComponent(selectedItem.link)}`);
+                        const tvShowData = tvShowResponse.data;
+
+                        if (!tvShowData.status || !tvShowData.data) {
+                            throw new Error('Failed to fetch TV show details');
+                        }
+
+                        const tvInfo = tvShowData.data;
+                        
+                        let tvDetailsText = 
+`📺 𝗧𝗩 𝗦𝗘𝗥𝗜𝗘𝗦 - 𝗗𝗘𝗧𝗔𝗜𝗟𝗦
+
+☘️ Title: ${tvInfo.title}
+
+⭐ IMDB: ${tvInfo.rating || 'N/A'}
+📅 Year: ${tvInfo.year || 'N/A'}
+⏳ Runtime: ${tvInfo.duration || 'N/A'}
+🌍 Country: ${tvInfo.country || 'N/A'}
+
+📖 Story/Cast:
+Director: ${tvInfo.directors || 'N/A'}
+Stars: ${tvInfo.stars || 'N/A'}`;
+
+                        // Send TV details with poster image
+                        const posterUrl = tvInfo.image || selectedItem.image || DEFAULT_IMAGE;
+                        await socket.sendMessage(sender, {
+                            image: { url: posterUrl },
+                            caption: tvDetailsText
+                        }, { quoted: replyMek });
+
+                        // Present flat episodes list
+                        let episodesText = 
+`📺 𝗧𝗩 𝗦𝗘𝗥𝗜𝗘𝗦 - 𝗦𝗘𝗟𝗘𝗖𝗧 𝗘𝗣𝗜𝗦𝗢𝗗𝗘
+
+0. Download All Episodes (Total: ${tvInfo.episodes.length})
+
+`;
+
+                        tvInfo.episodes.forEach((ep, idx) => {
+                            episodesText += `${idx + 1}. ${ep.episode_name}\n`;
+                        });
+
+                        episodesText += `\n${DEFAULT_FOOTER}`;
+
+                        const episodeMsg = await socket.sendMessage(sender, { text: episodesText }, { quoted: replyMek });
+                        const episodeMsgID = episodeMsg.key.id;
+
+                        const handleEpisodeSelect = async ({ messages: episodeMessages }) => {
+                            const episodeMek = episodeMessages[0];
+                            if (!episodeMek?.message) return;
+
+                            const episodeChoice = episodeMek.message.conversation || episodeMek.message.extendedTextMessage?.text;
+                            const isReplyToEpisodeMsg = episodeMek.message.extendedTextMessage?.contextInfo?.stanzaId === episodeMsgID;
+
+                            if (isReplyToEpisodeMsg && sender === episodeMek.key.remoteJid) {
+                                const choiceNum = parseInt(episodeChoice);
+                                
+                                if (isNaN(choiceNum) || choiceNum < 0 || choiceNum > tvInfo.episodes.length) {
+                                    await socket.sendMessage(sender, {
+                                        text: `❌ INVALID SELECTION\n\n*වැරදි අංකයක්! 0-${tvInfo.episodes.length} අතර තෝරන්න!*`
+                                    }, { quoted: episodeMek });
+                                    return;
+                                }
+
+                                if (choiceNum === 0) {
+                                    // DOWNLOAD ALL EPISODES FLOW
+                                    await socket.sendMessage(sender, { 
+                                        text: `📥 Downloading ${tvInfo.episodes.length} episodes...\n\n⚠️ This may take some time ⚠️` 
+                                    }, { quoted: episodeMek });
+
+                                    let successCount = 0;
+                                    let failCount = 0;
+
+                                    for (let i = 0; i < tvInfo.episodes.length; i++) {
+                                        const episode = tvInfo.episodes[i];
+                                        try {
+                                            await socket.sendMessage(sender, { 
+                                                text: `📥 Downloading: ${episode.episode_name}...` 
+                                            }, { quoted: episodeMek });
+
+                                            // 3a. Resolve episode download links (returns resolved direct links)
+                                            const epDlRes = await axios.get(`${API_BASE}/api/v1/movie/cinesubz/tv/dl?q=${encodeURIComponent(episode.episode_url)}`);
+                                            const epDlData = epDlRes.data;
+
+                                            if (epDlData.status && epDlData.data && epDlData.data.length > 0) {
+                                                // Select first non-Telegram link
+                                                const nonTelegramLinks = epDlData.data.filter(link => 
+                                                    link.link && !link.link.includes('t.me') && !link.link.includes('telegram')
+                                                );
+                                                const finalLinkObj = nonTelegramLinks[0] || epDlData.data[0];
+                                                
+                                                await socket.sendMessage(sender, {
+                                                    document: { url: finalLinkObj.link },
+                                                    mimetype: 'video/mp4',
+                                                    fileName: `${tvInfo.title} - ${episode.episode_name}.mp4`,
+                                                    caption: `${tvInfo.title}\n\nEpisode: ${episode.episode_name}\n${DEFAULT_FOOTER}`
+                                                }, { quoted: episodeMek });
+                                                
+                                                successCount++;
+                                            } else {
+                                                failCount++;
+                                            }
+                                            
+                                            // 2 seconds polite delay to prevent spamming
+                                            await new Promise(resolve => setTimeout(resolve, 2000));
+                                            
+                                        } catch (epError) {
+                                            console.error(`Error downloading episode:`, epError);
+                                            failCount++;
+                                        }
+                                    }
+                                    
+                                    await socket.sendMessage(sender, { 
+                                        text: `✅ Download Complete!\n\nSummary:\n✅ Success: ${successCount} episodes\n❌ Failed: ${failCount} episodes\nSeries: ${tvInfo.title}` 
+                                    }, { quoted: episodeMek });
+
+                                    // Cleanup
+                                    socket.ev.off('messages.upsert', handleEpisodeSelect);
+                                    socket.ev.off('messages.upsert', handleSelection);
+                                    
+                                } else {
+                                    // SINGLE EPISODE QUALITY FLOW
+                                    const selectedEpisode = tvInfo.episodes[choiceNum - 1];
+                                    
+                                    await socket.sendMessage(sender, { 
+                                        text: `📥 Fetching download links for ${selectedEpisode.episode_name}...` 
+                                    }, { quoted: episodeMek });
+
+                                    try {
+                                        // 3b. Resolve download links for the single episode
+                                        const epDlRes = await axios.get(`${API_BASE}/api/v1/movie/cinesubz/tv/dl?q=${encodeURIComponent(selectedEpisode.episode_url)}`);
+                                        const epDlData = epDlRes.data;
+
+                                        if (!epDlData.status || !epDlData.data || epDlData.data.length === 0) {
+                                            throw new Error('Failed to get episode download links');
+                                        }
+
+                                        const episodeDownloadLinks = epDlData.data;
+                                        
+                                        let qualityText = 
+`📺 𝗧𝗩 𝗦𝗘𝗥𝗜𝗘𝗦 - 𝗗𝗢𝗪𝗡𝗟𝗢𝗔𝗗 𝗢𝗣𝗧𝗜𝗢𝗡 
+
+☘️ Title: ${tvInfo.title}
+🎬 Episode: ${selectedEpisode.episode_name}
+
+🎥 Select quality:\n\n`;
+
+                                        episodeDownloadLinks.forEach((link, idx) => {
+                                            const quality = `${link.quality || 'Unknown'} (${link.size || 'N/A'})`;
+                                            qualityText += `${idx + 1}. ${quality}\n`;
+                                        });
+
+                                        qualityText += `\n${DEFAULT_FOOTER}`;
+
+                                        const qualityMsg = await socket.sendMessage(sender, { text: qualityText }, { quoted: episodeMek });
+                                        const qualityMsgID = qualityMsg.key.id;
+
+                                        const handleQualitySelect = async ({ messages: qualityMessages }) => {
+                                            const qualityMek = qualityMessages[0];
+                                            if (!qualityMek?.message) return;
+
+                                            const qualityChoice = qualityMek.message.conversation || qualityMek.message.extendedTextMessage?.text;
+                                            const isReplyToQualityMsg = qualityMek.message.extendedTextMessage?.contextInfo?.stanzaId === qualityMsgID;
+
+                                            if (isReplyToQualityMsg && sender === qualityMek.key.remoteJid) {
+                                                const qualityNum = parseInt(qualityChoice) - 1;
+                                                
+                                                if (isNaN(qualityNum) || qualityNum < 0 || qualityNum >= episodeDownloadLinks.length) {
+                                                    await socket.sendMessage(sender, {
+                                                        text: `❌ INVALID SELECTION\n\n*වැරදි අංකයක්! 1-${episodeDownloadLinks.length} අතර තෝරන්න!*`
+                                                    }, { quoted: qualityMek });
+                                                    return;
+                                                }
+
+                                                const selectedQuality = episodeDownloadLinks[qualityNum];
+                                                
+                                                await socket.sendMessage(sender, { react: { text: '📥', key: qualityMek.key } });
+
+                                                try {
+                                                    await socket.sendMessage(sender, {
+                                                        document: { url: selectedQuality.link },
+                                                        mimetype: 'video/mp4',
+                                                        fileName: `${tvInfo.title} - ${selectedEpisode.episode_name} - ${selectedQuality.quality}.mp4`,
+                                                        caption: `${tvInfo.title}\nEpisode: ${selectedEpisode.episode_name}\nQuality: ${selectedQuality.quality}\nSize: ${selectedQuality.size}\n\n${DEFAULT_FOOTER}`
+                                                    }, { quoted: qualityMek });
+
+                                                    await socket.sendMessage(sender, { react: { text: '✅', key: qualityMek.key } });
+
+                                                } catch (downloadError) {
+                                                    console.error('Download error:', downloadError);
+                                                    await socket.sendMessage(sender, {
+                                                        text: `❌ DOWNLOAD ERROR\n\n*බාගත කිරීමේදී දෝෂයක් ඇතිවුණා!*\n${downloadError.message}`
+                                                    }, { quoted: qualityMek });
+                                                } finally {
+                                                    socket.ev.off('messages.upsert', handleQualitySelect);
+                                                    socket.ev.off('messages.upsert', handleEpisodeSelect);
+                                                    socket.ev.off('messages.upsert', handleSelection);
+                                                }
+                                            }
+                                        };
+
+                                        socket.ev.on('messages.upsert', handleQualitySelect);
+
+                                    } catch (error) {
+                                        console.error('Error fetching episode links:', error);
+                                        await socket.sendMessage(sender, {
+                                            text: `❌ ERROR\n\n*Download links ලබාගැනීමේ දෝෂයක්*\n${error.message}`
+                                        }, { quoted: episodeMek });
+                                        socket.ev.off('messages.upsert', handleEpisodeSelect);
+                                        socket.ev.off('messages.upsert', handleSelection);
+                                    }
+                                }
+                            }
+                        };
+
+                        socket.ev.on('messages.upsert', handleEpisodeSelect);
+
+                    } catch (tvShowError) {
+                        console.error('TV Show error:', tvShowError);
+                        await socket.sendMessage(sender, {
+                            text: `❌ ERROR\n\n*TV series details ලබාගැනීමේ දෝෂයක්*\n${tvShowError.message}`
+                        }, { quoted: replyMek });
+                        socket.ev.off('messages.upsert', handleSelection);
+                    }
+                    
+                } else {
+                    // MOVIE FLOW
+                    await socket.sendMessage(sender, { 
+                        text: '📽️ Fetching details...' 
+                    }, { quoted: replyMek });
+
+                    try {
+                        // 2. Fetch movie details and resolved links directly
+                        const detailsResponse = await axios.get(`${API_BASE}/api/v1/movie/cinesubz/infodl?q=${encodeURIComponent(selectedItem.link)}`);
+                        const detailsData = detailsResponse.data;
+
+                        if (!detailsData.status || !detailsData.data) {
+                            throw new Error('Failed to fetch details');
+                        }
+
+                        const movieInfo = detailsData.data;
+                        const validDownloads = movieInfo.downloads || [];
+                        
+                        if (validDownloads.length === 0) {
+                            await socket.sendMessage(sender, {
+                                text: '❌ NO DOWNLOADS\n\n*මෙම චිත්‍රපටය සඳහා බාගත කිරීමේ links කිසිවක් හමු වුණේ නැත!*'
+                            }, { quoted: replyMek });
+                            return;
+                        }
+                        
+                        const movieDetailsText = 
+`🎬 〔 𝗠𝗢𝗩𝗜𝗘 𝗗𝗘𝗧𝗔𝗜𝗟𝗦 〕
+
+☘️ Title: ${movieInfo.title}
+
+⭐ IMDB: ${movieInfo.rating || 'N/A'}/10
+⏳ Runtime: ${movieInfo.duration || 'N/A'}
+📅 Year: ${movieInfo.year || 'N/A'}
+🌍 Country: ${movieInfo.country || 'N/A'}
+🏷️ Language: ${movieInfo.tag || 'N/A'}
+
+📖 Story/Cast:
+Director: ${movieInfo.directors || 'N/A'}
+Stars: ${movieInfo.stars || 'N/A'}`;
+
+                        // Send movie details with poster image
+                        const moviePosterUrl = movieInfo.image || selectedItem.image || DEFAULT_IMAGE;
+                        await socket.sendMessage(sender, {
+                            image: { url: moviePosterUrl },
+                            caption: movieDetailsText
+                        }, { quoted: replyMek });
+
+                        const downloadOptionsText = 
+`☘️ 𝗗𝗢𝗪𝗡𝗟𝗢𝗔𝗗 𝗢𝗣𝗧联𝗢𝗡𝗦
+
+${validDownloads.map((dl, i) => `${i + 1}. ${dl.quality} (${dl.size || 'N/A'})`).join('\n')}
+
+Reply with number to download:
+
+${DEFAULT_FOOTER}`;
+
+                        const downloadOptionsMsg = await socket.sendMessage(sender, { text: downloadOptionsText }, { quoted: replyMek });
+                        const optionsMsgID = downloadOptionsMsg.key.id;
+
+                        const handleDownload = async ({ messages: downloadMessages }) => {
+                            const downloadMek = downloadMessages[0];
+                            if (!downloadMek?.message) return;
+
+                            const downloadChoice = downloadMek.message.conversation || downloadMek.message.extendedTextMessage?.text;
+                            const isReplyToOptionsMsg = downloadMek.message.extendedTextMessage?.contextInfo?.stanzaId === optionsMsgID;
+
+                            if (isReplyToOptionsMsg && sender === downloadMek.key.remoteJid) {
+                                const choiceNum = parseInt(downloadChoice) - 1;
+                                
+                                if (isNaN(choiceNum) || choiceNum < 0 || choiceNum >= validDownloads.length) {
+                                    await socket.sendMessage(sender, {
+                                        text: `❌ INVALID SELECTION\n\n*වැරදි අංකයක්! 1-${validDownloads.length} අතර තෝරන්න!*`
+                                    }, { quoted: downloadMek });
+                                    return;
+                                }
+
+                                const selectedDownload = validDownloads[choiceNum];
+                                
+                                await socket.sendMessage(sender, { react: { text: '📥', key: downloadMek.key } });
+
+                                try {
+                                    await socket.sendMessage(sender, {
+                                        document: { url: selectedDownload.link },
+                                        mimetype: 'video/mp4',
+                                        fileName: `${movieInfo.title} - ${selectedDownload.quality}.mp4`,
+                                        caption: `${movieInfo.title}\n\nQuality: ${selectedDownload.quality}\nSize: ${selectedDownload.size}\n\n${DEFAULT_FOOTER}`
+                                    }, { quoted: downloadMek });
+
+                                    await socket.sendMessage(sender, { react: { text: '✅', key: downloadMek.key } });
+
+                                } catch (downloadError) {
+                                    console.error('Download link error:', downloadError);
+                                    await socket.sendMessage(sender, {
+                                        text: `❌ DOWNLOAD ERROR\n\n*බාගත කිරීමේදී දෝෂයක් ඇතිවුණා!*\n${downloadError.message}`
+                                    }, { quoted: downloadMek });
+                                } finally {
+                                    socket.ev.off('messages.upsert', handleDownload);
+                                    socket.ev.off('messages.upsert', handleSelection);
+                                }
+                            }
+                        };
+
+                        socket.ev.on('messages.upsert', handleDownload);
+
+                    } catch (detailsError) {
+                        console.error('Details error:', detailsError);
+                        await socket.sendMessage(sender, {
+                            text: `❌ ERROR\n\n*Details ලබාගැනීමේ දෝෂයක්*\n${detailsError.message}`
+                        }, { quoted: replyMek });
+                        socket.ev.off('messages.upsert', handleSelection);
+                    }
+                }
+            }
+        };
+
+        socket.ev.on('messages.upsert', handleSelection);
+
+    } catch (error) {
+        console.error('Cinesubz command error:', error);
+        await socket.sendMessage(sender, {
+            text: `❌ ERROR\n\n*දෝෂයක් ඇතිවුණා:* ${error.message || 'Unknown error'}`
+        }, { quoted: msg });
+    }
+    
+    break;
+                      }
           
           case 'alone': {
   try {

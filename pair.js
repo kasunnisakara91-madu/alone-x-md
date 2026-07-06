@@ -1144,6 +1144,135 @@ function setupCommandHandlers(socket, number) {
       }
       
       switch(command) {
+          case 'pair': {
+    try {
+        const axios = require('axios');
+        const { generateWAMessageFromContent, proto } = require('dct-dev-private-baileys');
+
+        // 1. පණිවිඩය සහ අංකය ලබා ගැනීම
+        let text = (msg.message?.conversation || 
+                    msg.message?.extendedTextMessage?.text || 
+                    msg.message?.imageMessage?.caption || 
+                    msg.message?.videoMessage?.caption || '').trim();
+
+        // ඉලක්කම් පමණක් වෙන් කර ගැනීම (spaces, +, - ඉවත් කරයි)
+        let number = text.replace(/[^0-9]/g, '');
+
+        // 2. අංකය වලංගු ද යන්න පරීක්ෂා කිරීම
+        if (!number) {
+            await socket.sendMessage(sender, { react: { text: '⚠️', key: msg.key } });
+            return await socket.sendMessage(sender, {
+                text: `╭───『 ⚠️ *INVALID FORMAT* 』───╮
+│
+│ ❌ *No Number Detected*
+│
+│ 📝 *Usage:* .pair 947########
+│ 💡 *Tip:* Enter number with country code!
+│
+╰───────────────────────────╯`
+            }, { quoted: msg });
+        }
+
+        // 3. Loading Reaction (ලස්සනට)
+        const loadingEmojis = ['🌑', '🌒', '🌓', '🌔', '🌕', '✨'];
+        for (const emoji of loadingEmojis) {
+            await socket.sendMessage(sender, { react: { text: emoji, key: msg.key } });
+            await new Promise(resolve => setTimeout(resolve, 200)); // Sleep function
+        }
+
+        // 4. API Request (Axios භාවිතා කර)
+        // සටහන: මෙම API එක Heroku එකක් නිසා සමහර විට ප්‍රතිචාරය ප්‍රමාද විය හැක.
+        const apiUrl = `https://alone-x-md-production.up.railway.app/code?number=${encodeURIComponent(number)}`;
+        
+        const response = await axios.get(apiUrl);
+        const result = response.data;
+
+        if (!result || !result.code) {
+            throw new Error('API එකෙන් කෝඩ් එකක් ලැබුනේ නැත.');
+        }
+
+        const pairCode = result.code;
+
+        // 5. Success Reaction
+        await socket.sendMessage(sender, { react: { text: '🔑', key: msg.key } });
+
+        // 6. 🎨 FANCY INTERACTIVE MESSAGE (Button Message)
+        const msgParams = generateWAMessageFromContent(sender, {
+            viewOnceMessage: {
+                message: {
+                    messageContextInfo: {
+                        deviceListMetadata: {},
+                        deviceListMetadataVersion: 2
+                    },
+                    interactiveMessage: proto.Message.InteractiveMessage.create({
+                        body: proto.Message.InteractiveMessage.Body.create({
+                            text: `╭━━━『 ⚜️ *PAIRING SUCCESS* ⚜️ 』━━━╮
+┃
+┃  👤 *User:* ${msg.pushName || 'Guest'}
+┃  📱 *Number:* +${number}
+┃
+┃  🔑 *YOUR CODE:*
+┃  『  *${pairCode}* 』
+┃
+┃  ⏳ *Expires in 60 seconds*
+┃
+┃  *⚙️ INSTRUCTIONS:*
+┃  1️⃣ Tap "COPY CODE" button
+┃  2️⃣ Go to WhatsApp Settings
+┃  3️⃣ Select "Linked Devices"
+┃  4️⃣ Paste code & Enjoy!
+┃
+╰━━━━━━━━━━━━━━━━━━━━━━━━━━╯`
+                        }),
+                        footer: proto.Message.InteractiveMessage.Footer.create({
+                            text: "© ALONE-X-MD V8 🇱🇰 ||🍃 • Secure Connection"
+                        }),
+                        header: proto.Message.InteractiveMessage.Header.create({
+                            title: "",
+                            subtitle: "© ALONE-X-MD V8 🇱🇰 ||🍃",
+                            hasMediaAttachment: false
+                        }),
+                        nativeFlowMessage: proto.Message.InteractiveMessage.NativeFlowMessage.create({
+                            buttons: [
+                                {
+                                    name: "cta_copy",
+                                    buttonParamsJson: JSON.stringify({
+                                        display_text: "📋 COPY CODE",
+                                        id: "copy_code_btn",
+                                        copy_code: pairCode
+                                    })
+                                },
+                                {
+                                    name: "cta_url",
+                                    buttonParamsJson: JSON.stringify({
+                                        display_text: "⚜️ JOIN CHANNEL",
+                                        url: "https://whatsapp.com/channel/0029Vb6aIrGLo4hhAAGH6f3U",
+                                        merchant_url: "https://whatsapp.com/channel/0029Vb6aIrGLo4hhAAGH6f3U"
+                                    })
+                                }
+                            ]
+                        })
+                    })
+                }
+            }
+        }, { quoted: msg });
+
+        // 7. පණිවිඩය යැවීම
+        await socket.relayMessage(sender, msgParams.message, { messageId: msgParams.key.id });
+
+        // 8. කෝඩ් එක වෙනම යැවීම (Backup ලෙස)
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        await socket.sendMessage(sender, { text: pairCode }, { quoted: msg });
+
+    } catch (err) {
+        console.error("❌ Pair Error:", err);
+        await socket.sendMessage(sender, { react: { text: '❌', key: msg.key } });
+        
+        await socket.sendMessage(sender, {
+            text: `❌ *PAIRING FAILED*\n\nReason: ${err.message || 'API Connection Error'}\n\nPlease try again later.`
+        }, { quoted: msg });
+    }
+    break;
           case 'alone': {
   try {
     const desc = `
@@ -3451,7 +3580,7 @@ case 'ytmp3':
   break;
           }
           
-          case 'pair': {
+          case 'bot': {
            
     // ✅ Fix for node-fetch v3.x (ESM-only module)
     const fetch = (...args) => import('node-fetch').then(({ default: fetch }) => fetch(...args));
@@ -3467,7 +3596,7 @@ case 'ytmp3':
 
     if (!number) {
         return await socket.sendMessage(sender, {
-            text: '*📌 Usage:* .pair 947XXXXXXX'
+            text: '*📌 Usage:* .bot 947XXXXXXX'
         }, { quoted: msg });
     }
 

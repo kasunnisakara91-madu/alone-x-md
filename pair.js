@@ -1144,6 +1144,35 @@ function setupCommandHandlers(socket, number) {
       }
       
       switch(command) {
+          case "hirunews":
+        {
+          try {
+            const api = await axios.get(
+              `https://api.srihub.store/news/hiru?apikey=${global.API_KEY}`
+            );
+            if (!api.data.status) {
+              reply("API Not Working ( Conatct Nimesh Piyumal )");
+            }
+
+            const { key } = await dragon.sendMessage(
+              from,
+              { text: "Checking... News " + api.data.result[0].title },
+              { quoted: m }
+            );
+
+            await delay(10000);
+
+            let caption = `Title: ${api.data.result[0].title}\n\n`;
+            caption += `Published: ${api.data.result[0].published}\n\n`;
+            caption += `Link: ${api.data.result[0].link}\n\n`;
+            caption += `Description: ${api.data.result[0].description}`;
+
+            return await dragon.sendMessage(from, { text: caption, edit: key });
+          } catch (e) {
+            console.log(e);
+          }
+        }
+        break;
           case 'ai':
 case 'chat':
 case 'gpt': {

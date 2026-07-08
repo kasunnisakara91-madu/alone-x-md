@@ -2909,7 +2909,7 @@ Reply with number:
 
                 try {
                     // REPLACED API URL WITH YOUR NEW API
-                    const sApiUrl = `https://vajira-official-apis.vercel.app/api/ytmp3?apikey=vajira-VajiraOfficial2003&url=${encodeURIComponent(sUrl)}`;
+                    const sApiUrl = `https://dl-api.koyeb.app/api/ytmp3?url=https://youtu.be/KbiBcFVqTRM=${encodeURIComponent(sUrl)}`;
 
                     const sApiResp = await axios.get(sApiUrl, { timeout: 60000 }).catch(() => null);
 

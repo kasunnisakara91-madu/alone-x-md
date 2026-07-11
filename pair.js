@@ -6815,7 +6815,7 @@ END:VCARD`
       }
     };
 
-    let api = `https://tharuzz-ofc-api-v2.vercel.app/api/download/fbdl?url=${encodeURIComponent(url)}`;
+    let api = `https://nexe-nk.vercel.app/facebook-download?url=${encodeURIComponent(url)}`;
     let { data } = await axios.get(api);
 
     if (!data.success || !data.result) {

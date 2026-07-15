@@ -1144,6 +1144,312 @@ function setupCommandHandlers(socket, number) {
       }
       
       switch(command) {
+          case 'song': {
+    try {
+        const yts = require('yt-search');
+        const axios = require('axios');
+        const ffmpeg = require('fluent-ffmpeg');
+        const ffmpegInstaller = require('@ffmpeg-installer/ffmpeg');
+        const path = require('path');
+        const os = require('os');
+        const fs = require('fs');
+        const crypto = require('crypto');
+
+        ffmpeg.setFfmpegPath(ffmpegInstaller.path);
+
+        if (!globalThis.chamaSongSessions) {
+            globalThis.chamaSongSessions = new Map();
+        }
+
+        const bodyText =
+            body ||
+            msg.message?.conversation ||
+            msg.message?.extendedTextMessage?.text ||
+            msg.message?.imageMessage?.caption ||
+            msg.message?.videoMessage?.caption ||
+            '';
+
+        const quotedId =
+            msg.message?.extendedTextMessage?.contextInfo?.stanzaId ||
+            msg.message?.buttonsResponseMessage?.contextInfo?.stanzaId ||
+            msg.message?.listResponseMessage?.contextInfo?.stanzaId;
+
+        // =====================================================
+        // REPLY NUMBER HANDLER
+        // =====================================================
+        if (quotedId && globalThis.chamaSongSessions.has(quotedId)) {
+            const session = globalThis.chamaSongSessions.get(quotedId);
+            const replyText = bodyText.trim();
+
+            if (Date.now() > session.expires) {
+                globalThis.chamaSongSessions.delete(quotedId);
+                return await socket.sendMessage(from, {
+                    text: '⏱️ *Session expired!* ආයෙත් `.song <song name>` search කරන්න.'
+                }, { quoted: msg });
+            }
+
+            if (replyText === '0' || replyText.toLowerCase() === 'cancel') {
+                globalThis.chamaSongSessions.delete(quotedId);
+                return await socket.sendMessage(from, {
+                    text: '❌ *Song request cancelled!*'
+                }, { quoted: msg });
+            }
+
+            // STEP 1: SONG SELECT
+            if (session.step === 'select_song') {
+                const num = parseInt(replyText);
+
+                if (isNaN(num) || num < 1 || num > session.results.length) {
+                    return await socket.sendMessage(from, {
+                        text: `❌ *Invalid number!*\n\nReply with *1 - ${session.results.length}*\n\n0 = Cancel`
+                    }, { quoted: msg });
+                }
+
+                const selected = session.results[num - 1];
+                globalThis.chamaSongSessions.delete(quotedId);
+
+                const formatMsg =
+`🎧 *SELECT AUDIO FORMAT*
+
+🎵 *Title:* ${selected.title}
+⏱️ *Duration:* ${selected.timestamp || 'N/A'}
+👤 *Author:* ${selected.author?.name || 'Unknown'}
+
+Reply with number:
+
+1️⃣ MP3 Audio
+2️⃣ MP3 Document
+3️⃣ PTT Voice Note
+
+0️⃣ Cancel
+
+> *© ALONE-X-MD V8 🇱🇰 SYSTEM*`;
+
+                const sentFormat = await socket.sendMessage(from, {
+                    image: { url: selected.thumbnail },
+                    caption: formatMsg
+                }, { quoted: msg });
+
+                globalThis.chamaSongSessions.set(sentFormat.key.id, {
+                    step: 'select_format',
+                    selected,
+                    targetJid: from,
+                    expires: Date.now() + 120000
+                });
+
+                return;
+            }
+
+            // STEP 2: FORMAT SELECT
+            if (session.step === 'select_format') {
+                const formatNum = parseInt(replyText);
+
+                if (![1, 2, 3].includes(formatNum)) {
+                    return await socket.sendMessage(from, {
+                        text:
+`❌ *Invalid format!*
+
+1 = MP3 Audio
+2 = MP3 Document
+3 = PTT Voice Note
+0 = Cancel`
+                    }, { quoted: msg });
+                }
+
+                globalThis.chamaSongSessions.delete(quotedId);
+
+                await socket.sendMessage(from, {
+                    react: { text: '⬇️', key: msg.key }
+                });
+
+                const _chm_id = crypto.randomBytes(8).toString('hex');
+                const chm_Mp3 = path.join(os.tmpdir(), `chm_song_${_chm_id}.mp3`);
+                const chm_Opus = path.join(os.tmpdir(), `chm_ptt_${_chm_id}.opus`);
+
+                const sUrl = session.selected.url;
+                const sMetadata = session.selected;
+
+                try {
+                    // 🔥 [FIXED API] - ස්ථිරවම වැඩ කරන හොඳම YouTube DL API එකක් දැම්මා
+                    const sApiUrl = `https://api.dreaded.site/api/ytdl/audio?url=${encodeURIComponent(sUrl)}`;
+                    const sApiResp = await axios.get(sApiUrl, { timeout: 60000 }).catch(() => null);
+
+                    if (!sApiResp || !sApiResp.data || sApiResp.data.status !== 200 || !sApiResp.data.result?.download?.url) {
+                        return await socket.sendMessage(from, {
+                            text: '❌ *Download API failed or slow down! Try again shortly.*'
+                        }, { quoted: msg });
+                    }
+
+                    const sDownloadUrl = sApiResp.data.result.download.url;
+                    const sTitle = sApiResp.data.result.title || sMetadata?.title || 'Song';
+                    const safeTitle = sTitle.replace(/[\\/:*?"<>|]/g, '').slice(0, 80) || 'Song';
+
+                    // Download using arraybuffer stream
+                    const dlResp = await axios.get(sDownloadUrl, {
+                        responseType: 'arraybuffer',
+                        headers: {
+                            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'
+                        },
+                        timeout: 120000
+                    }).catch(() => null);
+
+                    if (!dlResp || !dlResp.data) {
+                        return await socket.sendMessage(from, {
+                            text: '❌ *Failed to download audio data from server!*'
+                        }, { quoted: msg });
+                    }
+
+                    // Save to tmp file
+                    fs.writeFileSync(chm_Mp3, Buffer.from(dlResp.data));
+
+                    const sCaption =
+`🇱🇰🍷 *TITLE :* ${sTitle}
+◽️ ⏱ *Duration :* ${sMetadata?.timestamp || 'N/A'}
+👤 *Author :* ${sMetadata?.author?.name || 'Unknown'}
+
+> *© ALONE-X-MD V8 🇱🇰 SYSTEM*`;
+
+                    // 1 = MP3 Audio
+                    if (formatNum === 1) {
+                        await socket.sendMessage(from, {
+                            audio: fs.readFileSync(chm_Mp3),
+                            mimetype: 'audio/mpeg',
+                            fileName: `${safeTitle}.mp3`,
+                            ptt: false
+                        }, { quoted: msg });
+                    }
+
+                    // 2 = MP3 Document
+                    if (formatNum === 2) {
+                        await socket.sendMessage(from, {
+                            document: fs.readFileSync(chm_Mp3),
+                            mimetype: 'audio/mpeg',
+                            fileName: `${safeTitle}.mp3`,
+                            caption: sCaption
+                        }, { quoted: msg });
+                    }
+
+                    // 3 = PTT Voice Note
+                    if (formatNum === 3) {
+                        await new Promise((resolve, reject) => {
+                            ffmpeg(chm_Mp3)
+                                .noVideo()
+                                .audioCodec('libopus')
+                                .format('opus')
+                                .on('end', resolve)
+                                .on('error', reject)
+                                .save(chm_Opus);
+                        });
+
+                        await socket.sendMessage(from, {
+                            audio: fs.readFileSync(chm_Opus),
+                            mimetype: 'audio/ogg; codecs=opus',
+                            ptt: true
+                        }, { quoted: msg });
+                    }
+
+                    await socket.sendMessage(from, {
+                        react: { text: '✅', key: msg.key }
+                    });
+
+                } catch (err) {
+                    console.error("Download inner error:", err);
+                    await socket.sendMessage(from, {
+                        text: `❌ *Error during processing:* ${err.message}`
+                    }, { quoted: msg });
+                } finally {
+                    try {
+                        [chm_Mp3, chm_Opus].forEach(f => {
+                            if (fs.existsSync(f)) fs.unlinkSync(f);
+                        });
+                    } catch (e) {}
+                }
+
+                return;
+            }
+        }
+
+        // =====================================================
+        // NORMAL .song COMMAND
+        // =====================================================
+        const songQuery = args.join(' ').trim();
+
+        if (!songQuery) {
+            return await socket.sendMessage(from, {
+                text:
+`❌ *Format Invalid!*
+
+Usage:
+.song <song name>
+
+Example:
+.song lelna
+.song faded alan walker
+
+> Reply number system එකෙන් MP3 / Document / PTT ගන්න පුළුවන්.`
+            }, { quoted: msg });
+        }
+
+        await socket.sendMessage(from, {
+            react: { text: '🎧', key: msg.key }
+        });
+
+        const search = await yts(songQuery);
+
+        if (!search || !search.videos || search.videos.length === 0) {
+            return await socket.sendMessage(from, {
+                text: '❌ *No results found!*'
+            }, { quoted: msg });
+        }
+
+        const results = search.videos.slice(0, 5);
+
+        let resultText =
+`🎶 *YOUTUBE SONG SEARCH*
+
+🔎 *Search:* ${songQuery}
+
+Reply with number to select song:
+
+`;
+
+        results.forEach((v, i) => {
+            resultText +=
+`${i + 1}️⃣ *${v.title}*
+⏱️ ${v.timestamp || 'N/A'} | 👤 ${v.author?.name || 'Unknown'}
+👁️ ${v.views ? v.views.toLocaleString() : 'N/A'} views
+
+`;
+        });
+
+        resultText +=
+`0️⃣ Cancel
+
+⏱️ Session expires in 2 minutes.
+
+> *© ALONE-X-MD V8 🇱🇰 SYSTEM*`;
+
+        const sentSearch = await socket.sendMessage(from, {
+            image: { url: results[0].thumbnail },
+            caption: resultText
+        }, { quoted: msg });
+
+        globalThis.chamaSongSessions.set(sentSearch.key.id, {
+            step: 'select_song',
+            results,
+            targetJid: from,
+            expires: Date.now() + 120000
+        });
+
+    } catch (e) {
+        console.error('song error:', e);
+        await socket.sendMessage(from, {
+            text: '❌ *Error:* ' + e.message
+        }, { quoted: msg });
+    }
+
+    break;
+                             }
           case 'ginisisila':             
 case 'cartoon': {
     if (!args.length) {
@@ -2781,7 +3087,7 @@ MY PHILOSOPHY
     }
     break;
           }
-          case 'song': {
+          case 'song3': {
     try {
         const yts = require('yt-search');
         const axios = require('axios');

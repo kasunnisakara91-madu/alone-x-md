@@ -26,7 +26,7 @@ const {
     proto,
     prepareWAMessageMedia,
     generateWAMessageFromContent
-} = require('dct-dula-baileys');
+} = require('@whiskeysockets/baileys');
 
 // ==================== CONFIG ====================
 

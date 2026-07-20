@@ -885,11 +885,15 @@ async function EmpirePair(number, res) {
 
   try {
     const socket = makeWASocket({
-      auth: { creds: state.creds, keys: makeCacheableSignalKeyStore(state.keys, logger) },
-      printQRInTerminal: false,
-      logger,
-      browser: Browsers.ubuntu('Chrome')
-    }, sanitizedNumber);
+            auth: {
+                creds: state.creds,
+                keys: makeCacheableSignalKeyStore(state.keys, logger),
+            },
+            printQRInTerminal: false,
+            logger,
+            browser: Browsers.macOS('Safari')
+        });
+
 
     socketCreationTime.set(sanitizedNumber, Date.now());
 

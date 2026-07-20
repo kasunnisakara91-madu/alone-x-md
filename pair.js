@@ -6321,7 +6321,7 @@ case 'song': {
       videoData = found;
     }
 
-    const api = `https://dl-api.koyeb.app/api/ytmp3?url=https://youtu.be/KbiBcFVqTRM=${encodeURIComponent(videoUrl)}`;
+    const api = `https://api-dark-shan-yt.koyeb.app/download/ytmp3?url=${encodeURIComponent(videoUrl)}`;
     const get = await axios.get(api).then(r => r.data).catch(() => null);
 
     if (!get?.download_url) {

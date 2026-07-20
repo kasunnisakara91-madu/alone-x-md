@@ -2527,7 +2527,7 @@ MY PHILOSOPHY
 > ® ALONE-X-MD V8 🇱🇰 💧
 `;
 
-    const imageUrl = 'https://i.ibb.co/NdczhNhS/be4ab03a154e.jpg';
+    const imageUrl = 'https://i.ibb.co/VcRszj8Y/77faf914a75d.jpg';
 
     await socket.sendMessage(sender, {
       image: { url: imageUrl },

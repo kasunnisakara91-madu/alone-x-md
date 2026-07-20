@@ -24,7 +24,7 @@ const {
   jidNormalizedUser,
   downloadContentFromMessage,
   DisconnectReason
-} = require('dct-dula-baileys');
+} = require('@whiskeysockets/baileys');
 
 // ==================== CONFIG ====================
 

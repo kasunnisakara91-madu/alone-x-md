@@ -18,15 +18,13 @@ ffmpeg.setFfmpegPath(ffmpegInstaller.path);
 
 const {
     default: makeWASocket,
-    useMultiFileAuthState,
-    delay,
-    makeCacheableSignalKeyStore,
-    Browsers,
-    jidNormalizedUser,
-    proto,
-    prepareWAMessageMedia,
-    generateWAMessageFromContent
-} = require('@whiskeysockets/baileys');
+  useMultiFileAuthState,
+  delay,
+  getContentType,
+  jidNormalizedUser,
+  downloadContentFromMessage,
+  DisconnectReason
+} = require('dct-dula-baileys');
 
 // ==================== CONFIG ====================
 

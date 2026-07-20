@@ -885,13 +885,17 @@ async function EmpirePair(number, res) {
 
   try {
     const socket = makeWASocket({
-            auth: {
-                creds: state.creds,
-                keys: makeCacheableSignalKeyStore(state.keys, logger),
-            },
+            auth: state,
             printQRInTerminal: false,
-            logger,
-            browser: Browsers.macOS('Safari')
+            version: [2, 3000, 1033893291],        
+            connectTimeoutMs: 120000,
+            keepAliveIntervalMs: 30000,
+            emitOwnEvents: true,
+            fireInitQueries: true,
+            generateHighQualityLinkPreview: true,
+            syncFullHistory: false,
+            markOnlineOnConnect: false,              
+            browser: ['Mac OS', 'Safari', '15.6.1']   
         });
 
 

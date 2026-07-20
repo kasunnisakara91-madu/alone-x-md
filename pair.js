@@ -2458,7 +2458,7 @@ ${DEFAULT_FOOTER}`;
     break;
                 }
           
-          case 'alone': {
+          case 'my': {
   try {
     const desc = `
 ABOUT ME – ALONE-X-MD V8 🇱🇰

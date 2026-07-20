@@ -2841,7 +2841,7 @@ MY PHILOSOPHY
     }
     break;
           }
-          case 'song': {
+          case 'song8': {
     try {
         const yts = require('yt-search');
         const axios = require('axios');
@@ -6321,7 +6321,7 @@ case 'song': {
       videoData = found;
     }
 
-    const api = `https://www.movanest.xyz/v2/ytmp3?url=${encodeURIComponent(videoUrl)}`;
+    const api = `https://dl-api.koyeb.app/api/ytmp3?url=https://youtu.be/KbiBcFVqTRM=${encodeURIComponent(videoUrl)}`;
     const get = await axios.get(api).then(r => r.data).catch(() => null);
 
     if (!get?.download_url) {

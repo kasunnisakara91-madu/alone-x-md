@@ -1146,6 +1146,64 @@ function setupCommandHandlers(socket, number) {
       }
       
       switch(command) {
+              case 'tagall': {
+  try {
+    if (!from || !from.endsWith('@g.us')) return await socket.sendMessage(sender, { text: '❌ This command can only be used in groups.' }, { quoted: msg });
+
+    let gm = null;
+    try { gm = await socket.groupMetadata(from); } catch(e) { gm = null; }
+    if (!gm) return await socket.sendMessage(sender, { text: '❌ Failed to fetch group info.' }, { quoted: msg });
+
+    const participants = gm.participants || [];
+    if (!participants.length) return await socket.sendMessage(sender, { text: '❌ No members found in the group.' }, { quoted: msg });
+
+    const text = args && args.length ? args.join(' ') : '📢 Announcement';
+
+    let groupPP = 'https://i.ibb.co/1fTfBBtj/5a79fefdb4d4.jpg';
+    try { groupPP = await socket.profilePictureUrl(from, 'image'); } catch(e){}
+
+    const mentions = participants.map(p => p.id || p.jid);
+    const groupName = gm.subject || 'Group';
+    const totalMembers = participants.length;
+
+    const emojis = ['🫶','🐻','🌐','❄','⭕','❖','🫟','👀','◯','▢','❤️‍🔥','🎧','▣','▸'];
+    const randomEmoji = emojis[Math.floor(Math.random() * emojis.length)];
+
+    const sanitized = (number || '').replace(/[^0-9]/g, '');
+    const cfg = await loadUserConfigFromMongo(sanitized) || {};
+    const botName = cfg.botName || BOT_NAME_FANCY;
+
+    // BotName meta mention
+    const metaQuote = {
+      key: { remoteJid: "status@broadcast", participant: "0@s.whatsapp.net", fromMe: false, id: "META_AI_TAGALL" },
+      message: { contactMessage: { displayName: botName, vcard: `BEGIN:VCARD\nVERSION:3.0\nN:${botName};;;;\nFN:${botName}\nORG:Meta Platforms\nTEL;type=CELL;type=VOICE;waid=13135550002:+1 313 555 0002\nEND:VCARD` } }
+    };
+
+    let caption = `╭╸╸╸ *♥️ Group Announcement* ╺╺╺╮\n`;
+    caption += `│ 📌 *𝐆roup:* ${groupName}\n`;
+    caption += `│ 👥 *𝐌embers:* ${totalMembers}\n`;
+    caption += `│ 💬 *𝐌essage:* ${text}\n`;
+    caption += `╰────────────────────────────╯\n\n`;
+    caption += `📍 *Mentioning all members below:*\n\n`;
+    for (const m of participants) {
+      const id = (m.id || m.jid);
+      if (!id) continue;
+      caption += `${randomEmoji} @${id.split('@')[0]}\n`;
+    }
+    caption += `\n━━━━━━⊱ *${botName}* ⊰━━━━━━`;
+
+    await socket.sendMessage(from, {
+      image: { url: groupPP },
+      caption,
+      mentions,
+    }, { quoted: metaQuote }); // <-- botName meta mention
+
+  } catch (err) {
+    console.error('tagall error', err);
+    await socket.sendMessage(sender, { text: '❌ Error running tagall.' }, { quoted: msg });
+  }
+  break;
+              }
           case 'ginisisila':             
 case 'cartoon': {
     if (!args.length) {

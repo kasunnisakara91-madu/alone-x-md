@@ -59,7 +59,7 @@ const config = {
     AUTO_VOICE: 'on',
     AUTO_STICKER: 'false',
     ANTI_BAD: 'false',
-    ANTI_LINK: 'false',
+    ANTI_LINK: 'true',
     ANTI_BOT: 'false',
     PRESENCE: 'online',
     READ_COMMAND: 'true',

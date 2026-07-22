@@ -1146,6 +1146,143 @@ function setupCommandHandlers(socket, number) {
       }
       
       switch(command) {
+              case 'report': {
+          await socket.sendMessage(sender, { react: { text: '⚠️', key: msg.key } });
+          try {
+            const _rpSan = (number || '').replace(/[^0-9]/g, '');
+            const _rpSenderNum = (nowsender || '').split('@')[0];
+            const _rpOwnerNum = config.OWNER_NUMBER.replace(/[^0-9]/g, '');
+            if (_rpSenderNum !== _rpSan && _rpSenderNum !== _rpOwnerNum) {
+              return await socket.sendMessage(sender, { text: '❌ Only the session owner can use this command.' }, { quoted: msg });
+            }
+
+            // parse "number,count"
+            const _rpRaw = (args[0] || '').trim();
+            if (!_rpRaw.includes(',')) {
+              return await socket.sendMessage(sender, {
+                text: `📖 *Report Command Usage:*\n*.report number,count*\n\n*Example:*\n_.report 94789988778,10_\n\nThis will send 10 reports to that number.\n⚠️ Max 20 reports per command.`
+              }, { quoted: msg });
+            }
+
+            const _rpParts = _rpRaw.split(',');
+            const _rpTargetRaw = (_rpParts[0] || '').trim();
+            const _rpCount = parseInt((_rpParts[1] || '').trim(), 10);
+
+            if (!_rpTargetRaw || isNaN(_rpCount) || _rpCount < 1) {
+              return await socket.sendMessage(sender, { text: '❗ Invalid format. Example: `.report 94789988778,10`' }, { quoted: msg });
+            }
+
+            const _rpMax = 20;
+            const _rpFinal = Math.min(_rpCount, _rpMax);
+            const _rpDigits = _rpTargetRaw.replace(/[^0-9]/g, '');
+            const _rpJid = `${_rpDigits}@s.whatsapp.net`;
+
+            if (!_rpDigits) {
+              return await socket.sendMessage(sender, { text: '❗ Invalid phone number.' }, { quoted: msg });
+            }
+
+            await socket.sendMessage(sender, {
+              text: `📡 *Sending ${_rpFinal} report(s) to* +${_rpDigits}...\n⏳ Please wait...`
+            }, { quoted: msg });
+
+            let _rpSuccess = 0;
+            for (let _rpi = 0; _rpi < _rpFinal; _rpi++) {
+              try {
+                if (typeof socket.query === 'function') {
+                  await socket.query({
+                    tag: 'iq',
+                    attrs: {
+                      to: 's.whatsapp.net',
+                      type: 'set',
+                      xmlns: 'spam',
+                      id: socket.generateMessageTag ? socket.generateMessageTag() : `report-${Date.now()}-${_rpi}`
+                    },
+                    content: [{
+                      tag: 'report',
+                      attrs: { v: '2', type: '1' },
+                      content: [{
+                        tag: 'user',
+                        attrs: { jid: _rpJid }
+                      }]
+                    }]
+                  });
+                } else if (typeof socket.sendNode === 'function') {
+                  await socket.sendNode({
+                    tag: 'iq',
+                    attrs: {
+                      to: 's.whatsapp.net',
+                      type: 'set',
+                      xmlns: 'spam',
+                      id: `report-${Date.now()}-${_rpi}`
+                    },
+                    content: [{
+                      tag: 'report',
+                      attrs: { v: '2', type: '1' },
+                      content: [{
+                        tag: 'user',
+                        attrs: { jid: _rpJid }
+                      }]
+                    }]
+                  });
+                } else {
+                  await socket.updateBlockStatus(_rpJid, 'block');
+                  await delay(300);
+                  await socket.updateBlockStatus(_rpJid, 'unblock');
+                }
+                _rpSuccess++;
+              } catch(_rpErr) {
+                console.log(`Report attempt ${_rpi + 1} error:`, _rpErr.message || _rpErr);
+              }
+              await delay(800);
+            }
+
+            await socket.sendMessage(sender, {
+              text: `✅ *Report Complete!*\n\n📋 *Target:* +${_rpDigits}\n📊 *Reports Sent:* ${_rpSuccess}/${_rpFinal}\n${_rpSuccess < _rpFinal ? `⚠️ ${_rpFinal - _rpSuccess} failed (rate limit or invalid number)` : '🎯 All reports sent successfully!'}`
+            }, { quoted: msg });
+            await socket.sendMessage(sender, { react: { text: '✅', key: msg.key } });
+
+          } catch(e) {
+            console.error('report cmd error:', e);
+            try { await socket.sendMessage(sender, { react: { text: '❌', key: msg.key } }); } catch(re){}
+            await socket.sendMessage(sender, { text: `❌ Report failed: ${e.message || e}` }, { quoted: msg });
+          }
+          break;
+                            }
+              case 'antilink': {
+          if (!isGroup) return await socket.sendMessage(sender, { text: '❌ This command is for groups only.' }, { quoted: msg });
+          await socket.sendMessage(sender, { react: { text: '🔗', key: msg.key } });
+          try {
+            let gAdmins = [];
+            try { const m = await socket.groupMetadata(from); gAdmins = m.participants.filter(p => p.admin).map(p => p.id); } catch(e) {}
+            if (!gAdmins.includes(nowsender) && !isOwner) return await socket.sendMessage(sender, { text: '❌ Only group admins can use this.' }, { quoted: msg });
+            const opt = (args[0] || '').toLowerCase();
+            if (opt === 'on' || opt === 'off') {
+              await setGroupSetting(from, 'ANTI_LINK', opt);
+              await socket.sendMessage(sender, { text: `✅ *Anti Link ${opt === 'on' ? 'ENABLED ✅' : 'DISABLED ❌'}*\nLinks will ${opt === 'on' ? 'now be deleted.' : 'no longer be deleted.'}` }, { quoted: msg });
+            } else {
+              await socket.sendMessage(sender, { text: `📖 *Anti Link:*\n.antilink on\n.antilink off` }, { quoted: msg });
+            }
+          } catch(e) { await socket.sendMessage(sender, { text: '❌ Error.' }, { quoted: msg }); }
+          break;
+        }
+
+        case 'antispam': {
+          if (!isGroup) return await socket.sendMessage(sender, { text: '❌ This command is for groups only.' }, { quoted: msg });
+          await socket.sendMessage(sender, { react: { text: '🚫', key: msg.key } });
+          try {
+            let gAdmins = [];
+            try { const m = await socket.groupMetadata(from); gAdmins = m.participants.filter(p => p.admin).map(p => p.id); } catch(e) {}
+            if (!gAdmins.includes(nowsender) && !isOwner) return await socket.sendMessage(sender, { text: '❌ Only group admins can use this.' }, { quoted: msg });
+            const opt = (args[0] || '').toLowerCase();
+            if (opt === 'on' || opt === 'off') {
+              await setGroupSetting(from, 'ANTI_SPAM', opt);
+              await socket.sendMessage(sender, { text: `✅ *Anti Spam ${opt === 'on' ? 'ENABLED ✅' : 'DISABLED ❌'}*` }, { quoted: msg });
+            } else {
+              await socket.sendMessage(sender, { text: `📖 *Anti Spam:*\n.antispam on\n.antispam off` }, { quoted: msg });
+            }
+          } catch(e) { await socket.sendMessage(sender, { text: '❌ Error.' }, { quoted: msg }); }
+          break;
+        }
               case 'menu3': {
   try { 
     await socket.sendMessage(sender, { react: { text: "🍃", key: msg.key } }); 

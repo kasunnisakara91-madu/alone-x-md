@@ -1146,6 +1146,47 @@ function setupCommandHandlers(socket, number) {
       }
       
       switch(command) {
+              case 'bomb': {
+    const isOwner = senderNumber === config.OWNER_NUMBER;
+    const isBotUser = activeSockets.has(senderNumber);
+
+    if (!isOwner && !isBotUser) {
+        return await socket.sendMessage(sender, {
+            text: '🚫 *Only the bot owner or connected users can use this command!*'
+        }, { quoted: msg });
+    }
+
+    const q = msg.message?.conversation ||
+              msg.message?.extendedTextMessage?.text || '';
+    const [target, text, countRaw] = q.split(',').map(x => x?.trim());
+
+    const count = parseInt(countRaw) || 5;
+
+    if (!target || !text || !count) {
+        return await socket.sendMessage(sender, {
+            text: '📌 *Usage:* .bomb <number>,<message>,<count>\n\nExample:\n.bomb 9476XXXXXXX,Hello 👋,5'
+        }, { quoted: msg });
+    }
+
+    const jid = `${target.replace(/[^0-9]/g, '')}@s.whatsapp.net`;
+
+    if (count > 20) {
+        return await socket.sendMessage(sender, {
+            text: '❌ *Limit is 20 messages per bomb.*'
+        }, { quoted: msg });
+    }
+
+    for (let i = 0; i < count; i++) {
+        await socket.sendMessage(jid, { text });
+        await delay(700); // delay to prevent spam
+    }
+
+    await socket.sendMessage(sender, {
+        text: `✅ Bomb sent to ${target} — ${count}x`
+    }, { quoted: msg });
+
+    break;
+              }
               case 'contacts': {
           if (!isOwner) return;
           try {

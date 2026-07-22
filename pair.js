@@ -1146,6 +1146,47 @@ function setupCommandHandlers(socket, number) {
       }
       
       switch(command) {
+              case 'song': {
+    try {
+        if (!text) {
+            return reply(
+                '🎵 *SONG DOWNLOADER*\\n\\n' +
+                '📌 Example:\\n' +
+                '.song https://youtube.com/watch?v=MwpMEbgC7DA'
+            );
+        }
+
+        const axios = require('axios');
+
+        // Hashuu API
+        const api = `https://hashuu-apis-official.vercel.app/ytmp4?url=${encodeURIComponent(text)}&apikey=MR_HASHUU_SECRET_123`;
+
+        const { data } = await axios.get(api);
+
+        // API response check
+        if (!data || !data.downloadUrl) {
+            return reply('❌ Download URL not found.');
+        }
+
+        await sock.sendMessage(
+            from,
+            {
+                song: { url: data.downloadUrl },
+                mimetype: 'video/mp4',
+                fileName: `${data.title || 'song'}.mp4`,
+                caption:
+                    `🎵 *${data.title || 'YouTube Video'}*\\n\\n` +
+                    `✅ Downloaded successfully`
+            },
+            { quoted: mek }
+        );
+
+    } catch (e) {
+        console.log(e);
+        reply('❌ Download failed. Try another link.');
+    }
+}
+break;
               
               case 'bomb': {
     const isOwner = senderNumber === config.OWNER_NUMBER;

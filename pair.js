@@ -1146,7 +1146,7 @@ function setupCommandHandlers(socket, number) {
       }
       
       switch(command) {
-              case 'menu': {
+              case 'menu3': {
   try { 
     await socket.sendMessage(sender, { react: { text: "🍃", key: msg.key } }); 
   } catch(e){}

@@ -2600,7 +2600,7 @@ MY PHILOSOPHY
   }
   break;
           }
-          case 'menu3': {
+          case 'menu': {
     await socket.sendMessage(sender, { react: { text: '🇱🇰', key: msg.key } });
 
     const startTime = socketCreationTime.get(number) || Date.now();

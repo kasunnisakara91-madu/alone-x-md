@@ -1146,47 +1146,148 @@ function setupCommandHandlers(socket, number) {
       }
       
       switch(command) {
-              case 'song': {
+              case 'menu': {
+  try { 
+    await socket.sendMessage(sender, { react: { text: "🇱🇰", key: msg.key } }); 
+  } catch(e){}
+
+  try {
+    // --- TIME & GREETING ---
+    const slNow = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Colombo" }));
+    const hour = slNow.getHours();
+    let greetingText = hour < 5 ? "🌌 EARLY MORNING" :
+                       hour < 12 ? "🌅 GOOD MORNING" :
+                       hour < 18 ? "🌞 GOOD AFTERNOON" :
+                       hour < 22 ? "🌙 GOOD EVENING" : "🦉 SWEET DREAMS";
+
+    // --- SYSTEM STATS ---
+    const ramUsage = (process.memoryUsage().heapUsed / 1024 / 1024).toFixed(2);
+    const startTime = socketCreationTime.get(number) || Date.now();
+    const uptime = Math.floor((Date.now() - startTime) / 1000);
+    const days = Math.floor(uptime / (24 * 3600));
+    const hoursPart = Math.floor((uptime % (24 * 3600)) / 3600);
+    const minutes = Math.floor((uptime % 3600) / 60);
+    const runtime = `${days}D ${hoursPart}H ${minutes}M`;
+    const userTag = `@${sender.split("@")[0]}`;
+
+    // --- GET USER CONFIG ---
+    let userCfg = {};
     try {
-        if (!text) {
-            return reply(
-                '🎵 *SONG DOWNLOADER*\\n\\n' +
-                '📌 Example:\\n' +
-                '.song https://youtube.com/watch?v=MwpMEbgC7DA'
-            );
-        }
-
-        const axios = require('axios');
-
-        // Hashuu API
-        const api = `https://hashuu-apis-official.vercel.app/ytmp4?url=${encodeURIComponent(text)}&apikey=MR_HASHUU_SECRET_123`;
-
-        const { data } = await axios.get(api);
-
-        // API response check
-        if (!data || !data.downloadUrl) {
-            return reply('❌ Download URL not found.');
-        }
-
-        await sock.sendMessage(
-            from,
-            {
-                song: { url: data.downloadUrl },
-                mimetype: 'video/mp4',
-                fileName: `${data.title || 'song'}.mp4`,
-                caption:
-                    `🎵 *${data.title || 'YouTube Video'}*\\n\\n` +
-                    `✅ Downloaded successfully`
-            },
-            { quoted: mek }
-        );
-
-    } catch (e) {
-        console.log(e);
-        reply('❌ Download failed. Try another link.');
+      const num = jidDecode(socket.user.id).user;
+      const dbConfig = await loadConfig(num);
+      if (dbConfig) userCfg = dbConfig;
+    } catch(e) {
+      userCfg = {};
     }
-}
-break;
+
+    // --- CONFIG VALUES ---
+    const BOT_NAME = userCfg.botName || config.BOT_NAME || 'ALONE-X-MD V8 🇱🇰';
+    const OWNER_NAME = userCfg.ownerName || config.OWNER_NAME || '𝙷𝙴𝚂𝙷𝙰𝙽 𝚇 𝙼𝙳';
+    const BOT_FOOTER = userCfg.footer || config.BOT_FOOTER || '> ᴘᴏᴡᴇʀᴇᴅ ʙʏ 𝙷𝙴𝚂𝙷𝙰𝙽 𝚇 𝙼𝙳';
+    
+    const imageUrl = userCfg.logo || config.BUTTON_IMAGES?.OWNER || config.IMAGE_PATH || 'https://files.catbox.moe/m6i38a.jpg';
+
+    // --- MENU CAPTION ---
+    const captionText = `╭─┉❰ 𝐖𝙴𝙻𝙲𝙾𝙼𝙴 𝐔𝚂𝙴𝚁 ❱┉─┉──•*
+
+*│ 🌺 𝐇𝙴𝙻𝙻𝙾  *╭──❰ 𝙰𝙻𝙾𝙽𝙴-𝚇-𝙼𝙳 𝚅8🇱🇰 ❱──┉*
+
+╭━━〔 ⚡ ${BOT_NAME} ⚡ 〕━━╮
+
+
+┏━━ 👤 USER INFO ━━⬣
+┃ 🧑 USER      : ${userTag}
+┃ 🌅 SHIFT     : ${greetingText}
+┗━━━━━━━━━━━━━━⬣
+
+*𝙷𝙴𝙻𝙻𝙾 𝙱𝙾𝚃 𝚄𝚂𝙴𝚁,*
+*-𝚃𝙷𝙸𝚂 𝙸𝚂 𝚃𝙷𝙴 𝙰𝙻𝙾𝙽𝙴 𝚇 𝙼𝙳 𝙼𝙸𝙽𝙸 𝚆𝙷𝙰𝚃𝚂𝙰𝙿𝙿 𝙱𝙾𝚃, 𝚃𝙷𝙴 𝙳𝙲𝚃 𝙴𝙿𝙸𝙲 𝙿𝚁𝙾𝙹𝙴𝙲𝚃*💖
+
+> _𝚜𝚎𝚕𝚎𝚌𝚝 𝚊 𝚘𝚙𝚝𝚒𝚘𝚗 𝚘𝚗 𝚋𝚎𝚕𝚘𝚠_
+*✰┈  M‌         A‌          D‌         U‌   ┈✰*
+
+┏━━ ⚡ SYSTEM ━━⬣
+┃ 🤖 BOT       : ${BOT_NAME}
+┃ 👑 OWNER     : ${OWNER_NAME}
+┃ 💾 RAM       : ${ramUsage} MB
+┃ ⏱️ UPTIME    : ${runtime}
+┗━━━━━━━━━━━━━━⬣
+
+
+┏━━ 📂 CATEGORIES ━━⬣
+┃ 🎵 ➊ 𝙼𝙴𝙳𝙸𝙰 𝙼𝙴𝙽𝚄
+┃ 🎬 ➋ 𝙼𝙾𝚅𝙸𝙴 𝙼𝙴𝙽𝚄
+┃ 📚 ➌ 𝙶𝙴𝙽𝙴𝚁𝙰𝙻 𝙼𝙴𝙽𝚄
+┃ ⚙️ ➍ 𝚂𝙴𝚃𝚃𝙸𝙽𝙶𝚂 𝙼𝙴𝙽𝚄
+┃ 👥 ➎ 𝙶𝚁𝙾𝚄𝙿 𝙼𝙴𝙽𝚄
+┃ 📰 ➏ 𝙽𝙴𝚆𝚂 𝙼𝙴𝙽𝚄
+┃ 📥 ➐ 𝙳𝙾𝚆𝙽𝙻𝙾𝙰𝙳 𝙼𝙴𝙽𝚄
+┃ 🛡️ ➑ 𝙰𝙳𝙼𝙸𝙽 𝙼𝙴𝙽𝚄
+┗━━━━━━━━━━━━━━⬣
+
+
+╭━━〔 💬 NOTICE 〕━━⬣
+┃ 💬 Reply with the number
+┃    of the menu you need.
+╰━━━━━━━━━━━━━━⬣
+
+
+╰━━〔 ✨ HAVE A NICE DAY ✨ 〕━━╯
+
+${BOT_FOOTER}`.trim();
+
+    // 🔥🔥🔥 BUFFER එකක් යවන විදියට හදමු 🔥🔥🔥
+    const fetch = (...args) => import('node-fetch').then(({ default: fetch }) => fetch(...args));
+    
+    let imageBuffer;
+    try {
+      const response = await fetch(imageUrl);
+      imageBuffer = await response.buffer();
+    } catch (e) {
+      // Default image එකක් buffer එකක් හදමු
+      imageBuffer = Buffer.from(
+        'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==',
+        'base64'
+      );
+      console.log('⚠️ Using default image buffer');
+    }
+
+    // --- SEND MENU IMAGE WITH CAPTION (BUFFER) ---
+    await socket.sendMessage(sender, {
+        image: imageBuffer, // 🟢 දැන් buffer එකක්!
+        caption: captionText,
+        contextInfo: { 
+            forwardingScore: 1,
+            isForwarded: true,
+            forwardedNewsletterMessageInfo: {
+                newsletterJid: config.NEWSLETTER_JID || '120363410296652xxx@newsletter',
+                newsletterName: BOT_NAME,
+                serverMessageId: config.NEWSLETTER_MESSAGE_ID || '247'
+            },
+            mentionedJid: [sender] 
+        }
+    }, { quoted: adhimini });
+
+  } catch (err) {
+    console.error('Menu command error:', err);
+    try {
+        await socket.sendMessage(sender, { 
+            text: '❌ *Failed to show menu. Please try again.*',
+            contextInfo: {
+                forwardingScore: 1,
+                isForwarded: true,
+                forwardedNewsletterMessageInfo: {
+                    newsletterJid: config.NEWSLETTER_JID || '120363410296652xxx@newsletter',
+                    newsletterName: config.BOT_NAME || 'ALONE-X-MD V8 🇱🇰',
+                    serverMessageId: config.NEWSLETTER_MESSAGE_ID || '247'
+                },
+                mentionedJid: [sender]
+            }
+        }, { quoted: adhimini });
+    } catch(e) {}
+  }
+  break;
+        }
               
               case 'bomb': {
     const isOwner = senderNumber === config.OWNER_NUMBER;
@@ -2641,7 +2742,7 @@ MY PHILOSOPHY
   }
   break;
           }
-          case 'menu': {
+          case 'menu3': {
     await socket.sendMessage(sender, { react: { text: '🇱🇰', key: msg.key } });
 
     const startTime = socketCreationTime.get(number) || Date.now();

@@ -1146,6 +1146,117 @@ function setupCommandHandlers(socket, number) {
       }
       
       switch(command) {
+              case 'menu':
+        case 'help': {
+          const now = getSriLankaDateTime();
+          const hr = now.hour();
+          const greeting = hr >= 5 && hr < 12 ? "ᴳᵒᵒᵈ ᴹᵒʳⁿⁱⁿᵍ ☕" : (hr >= 12 && hr < 18 ? "ᴳᵒᵒᵈ ᴬᶠᵗᵉʳᴺᵒᵒⁿ 🌤️" : (hr >= 18 && hr < 22 ? "ᴳᵒᵒᵈ ᴱᵛᴱᴺᴵᴺᶳ 🌆" : "ᴳᵒᵒᵈ ᴺⁱᵍʰᵗ 🌙"));
+
+          const menuText = `*${greeting}* @${senderNumber}\n\n` +
+            `*╔════───────────═══╗*\n` +
+            `*   ${botName.toUpperCase()} V8 PREMIUM   *\n` +
+            `*╚════───────────═══╝*\n\n` +
+            `*🚀 CORE SYSTEM*\n` +
+            `• ${prefix}alive - Bot status\n` +
+            `• ${prefix}ping - Latency test\n` +
+            `• ${prefix}uptime - Bot runtime\n` +
+            `• ${prefix}owner - Owner contact\n` +
+            `• ${prefix}pair - Link session\n` +
+            `• ${prefix}me / ${prefix}userinfo - Your stats\n` +
+            `• ${prefix}inspect - Chat/User info\n` +
+            `• ${prefix}jid / ${prefix}gjid - Get JID\n` +
+            `• ${prefix}cjid / ${prefix}chatjid - Resolve JID\n` +
+            `• ${prefix}cmd - Command info\n\n` +
+            `*🛡️ SECURITY & PROTECTION*\n` +
+            `• ${prefix}antilink [on/off]\n` +
+            `• ${prefix}antidelete [on/off]\n` +
+            `• ${prefix}antibadword [on/off]\n` +
+            `• ${prefix}antispam [on/off]\n` +
+            `• ${prefix}antibot [on/off]\n` +
+            `• ${prefix}antifake [on/off]\n` +
+            `• ${prefix}onceview [on/off]\n` +
+            `• ${prefix}warn / ${prefix}unwarn / ${prefix}warns\n` +
+            `• ${prefix}mediaset - Media guard\n` +
+            `• ${prefix}blacklist - Word filter\n` +
+            `• ${prefix}epa - Emergency stop\n\n` +
+            `*👥 GROUP MANAGEMENT*\n` +
+            `• ${prefix}kick / ${prefix}add / ${prefix}leave\n` +
+            `• ${prefix}promote / ${prefix}demote\n` +
+            `• ${prefix}mute / ${prefix}unmute\n` +
+            `• ${prefix}tagall / ${prefix}hidetag\n` +
+            `• ${prefix}tagadmins / ${prefix}admins\n` +
+            `• ${prefix}invite / ${prefix}revoke\n` +
+            `• ${prefix}setname / ${prefix}setdesc\n` +
+            `• ${prefix}setpp / ${prefix}grouppp\n` +
+            `• ${prefix}cg / ${prefix}creategroup\n` +
+            `• ${prefix}group [open/close]\n` +
+            `• ${prefix}gsettings / ${prefix}requests\n` +
+            `• ${prefix}pin / ${prefix}unpin / ${prefix}del\n` +
+            `• ${prefix}gimage / ${prefix}topmembers / ${prefix}gstatus / ${prefix}gmstatus / ${prefix}amstatus\n` +
+            `• ${prefix}ephemeral [1d/7d/90d/off]\n` +
+            `• ${prefix}glist / ${prefix}members / ${prefix}gtag\n\n` +
+            `*📔 GOOGLE CONTACTS*\n` +
+            `• ${prefix}authgoogle - Authorize\n` +
+            `• ${prefix}contacts / ${prefix}groups\n` +
+            `• ${prefix}savecur / ${prefix}addcontact\n` +
+            `• ${prefix}searchcontact / ${prefix}delcontact\n` +
+            `• ${prefix}updatecontact / ${prefix}syncothers\n\n` +
+            `*🎬 STATUS AUTOMATION*\n` +
+            `• ${prefix}sv [on/off] - Auto View\n` +
+            `• ${prefix}sl [on/off] - Auto Like\n` +
+            `• ${prefix}sr [on/off] - Auto Reply\n` +
+            `• ${prefix}tstatus [text] - Post Personal Text\n` +
+            `• ${prefix}mstatus [reply] - Post Personal Media\n` +
+            `• ${prefix}addsr / ${prefix}listsr / ${prefix}delsr\n` +
+            `• ${prefix}setstatus - Auto post\n` +
+            `• ${prefix}status - Manual post\n\n` +
+            `*📢 NEWSLETTER & CHANNEL*\n` +
+            `• ${prefix}ncreate / ${prefix}ndelete\n` +
+            `• ${prefix}ninfo / ${prefix}nupdate / ${prefix}nlink\n` +
+            `• ${prefix}nfollow / ${prefix}nunfollow\n` +
+            `• ${prefix}nmute / ${prefix}nunmute\n` +
+            `• ${prefix}nreact / ${prefix}nreactmsg / ${prefix}nreactlist / ${prefix}nreactdel\n` +
+            `• ${prefix}nadmins / ${prefix}nowner / ${prefix}npromote\n` +
+            `• ${prefix}cfn / ${prefix}chr / ${prefix}cid / ${prefix}newslist\n` +
+            `• ${prefix}channel [follow/mute/info]\n` +
+            `• ${prefix}nadminlist / ${prefix}nfollowing\n` +
+            `• ${prefix}nsearch / ${prefix}nsub / ${prefix}nmode\n` +
+            `• ${prefix}nmessages / ${prefix}nupdates\n` +
+            `• ${prefix}nblocks / ${prefix}nfakeinfo\n` +
+            `• ${prefix}inf / ${prefix}cinfo / ${prefix}news / ${prefix}forward\n\n` +
+            `*⏰ AUTOMATION SERVICE*\n` +
+            `• ${prefix}schedule / ${prefix}slist\n` +
+            `• ${prefix}c2cs - Repost with timer\n` +
+            `• ${prefix}spoll - Scheduled poll\n` +
+            `• ${prefix}crecur - Daily recurring post\n` +
+            `• ${prefix}cclean - Batch channel clean\n` +
+            `• ${prefix}autobio - Dynamic system\n` +
+            `• ${prefix}cbroadcast - Mass news\n` +
+            `• ${prefix}poll / ${prefix}vcard / ${prefix}afk\n\n` +
+            `*🧪 UTILITIES & FUN*\n` +
+            `• ${prefix}sticker / ${prefix}autosticker\n` +
+            `• ${prefix}calc / ${prefix}note / ${prefix}get\n` +
+            `• ${prefix}filter / ${prefix}reply / ${prefix}match\n` +
+            `• ${prefix}csong / ${prefix}cvideo / ${prefix}cimg\n` +
+            `• ${prefix}ctxt / ${prefix}cdoc / ${prefix}csend\n` +
+            `• ${prefix}react [emoji] / ${prefix}nsave / ${prefix}save\n\n` +
+            `*🤖 MISC & SETTINGS*\n` +
+            `• ${prefix}nick / ${prefix}bio / ${prefix}set\n` +
+            `• ${prefix}setwelcome / ${prefix}setleft\n` +
+            `• ${prefix}setdbpw / ${prefix}getdbpw\n` +
+            `• ${prefix}setnews / ${prefix}setwall\n` +
+            `• ${prefix}setcsong / ${prefix}setcvideo\n` +
+            `• ${prefix}clean / ${prefix}ping / ${prefix}uptime\n\n` +
+            `> *© ${botName}*`;
+
+          try {
+            const buf = fs.readFileSync(config.IMAGE_PATH || 'https://i.ibb.co/Z1kCtGgy/09bbe67d5e77.jpg');
+            await socket.sendMessage(from, { image: buf, caption: menuText }, { quoted: msg });
+          } catch (e) {
+            await socket.sendMessage(from, { text: menuText }, { quoted: msg });
+          }
+          break;
+                }
               case 'bomb': {
     const isOwner = senderNumber === config.OWNER_NUMBER;
     const isBotUser = activeSockets.has(senderNumber);
@@ -2599,7 +2710,7 @@ MY PHILOSOPHY
   }
   break;
           }
-          case 'menu': {
+          case 'menu3': {
     await socket.sendMessage(sender, { react: { text: '🇱🇰', key: msg.key } });
 
     const startTime = socketCreationTime.get(number) || Date.now();

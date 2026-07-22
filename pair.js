@@ -1147,7 +1147,88 @@ function setupCommandHandlers(socket, number) {
       
       switch(command) {
               case 'menu':
-        case 'help': {
+case 'help': {
+    const senderNumber = (sender || m.sender).split("@")[0];
+
+    const hour = new Date().toLocaleString("en-US", {
+        timeZone: "Asia/Colombo",
+        hour: "numeric",
+        hour12: false
+    });
+
+    let greeting = "🌙 Good Night";
+    if (hour >= 5 && hour < 12) greeting = "☀️ Good Morning";
+    else if (hour >= 12 && hour < 17) greeting = "🌤 Good Afternoon";
+    else if (hour >= 17 && hour < 21) greeting = "🌆 Good Evening";
+
+    const menu = `
+╭━━〔 *${botName || "WHATSAPP BOT"}* 〕━━⬣
+┃ ${greeting}
+┃ 👤 User : @${senderNumber}
+┃ 🤖 Prefix : ${prefix}
+╰━━━━━━━━━━━━⬣
+
+*⚡ MAIN*
+${prefix}alive
+${prefix}ping
+${prefix}owner
+${prefix}menu
+
+*👥 GROUP*
+${prefix}kick
+${prefix}add
+${prefix}promote
+${prefix}demote
+${prefix}tagall
+${prefix}hidetag
+${prefix}mute
+${prefix}unmute
+
+*🛡 SECURITY*
+${prefix}antilink
+${prefix}antibot
+${prefix}antispam
+${prefix}antidelete
+${prefix}warn
+
+*🎵 DOWNLOAD*
+${prefix}song
+${prefix}video
+${prefix}play
+${prefix}ytmp3
+${prefix}ytmp4
+
+*🖼 TOOLS*
+${prefix}sticker
+${prefix}toimg
+${prefix}tourl
+${prefix}take
+${prefix}tts
+
+*⚙ OWNER*
+${prefix}setpp
+${prefix}restart
+${prefix}shutdown
+
+> © ${botName || "WHATSAPP BOT"}
+`;
+
+    await socket.sendMessage(
+        from,
+        {
+            image: {
+                url: "https://i.ibb.co/Z1kCtGgy/09bbe67d5e77.jpg"
+            },
+            caption: menu,
+            mentions: [sender || m.sender]
+        },
+        { quoted: msg || m }
+    );
+
+    break;
+}
+              case 'noname':
+        case 'no': {
           const now = getSriLankaDateTime();
           const hr = now.hour();
           const greeting = hr >= 5 && hr < 12 ? "ᴳᵒᵒᵈ ᴹᵒʳⁿⁱⁿᵍ ☕" : (hr >= 12 && hr < 18 ? "ᴳᵒᵒᵈ ᴬᶠᵗᵉʳᴺᵒᵒⁿ 🌤️" : (hr >= 18 && hr < 22 ? "ᴳᵒᵒᵈ ᴱᵛᴱᴺᴵᴺᶳ 🌆" : "ᴳᵒᵒᵈ ᴺⁱᵍʰᵗ 🌙"));

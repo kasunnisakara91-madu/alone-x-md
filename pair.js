@@ -1146,6 +1146,24 @@ function setupCommandHandlers(socket, number) {
       }
       
       switch(command) {
+              case 'contacts': {
+          if (!isOwner) return;
+          try {
+            const data = await listGoogleContacts(sanitizedNum);
+            if (!data.connections || data.connections.length === 0) {
+              return await socket.sendMessage(from, { text: formatMessage('📔 GOOGLE CONTACTS', 'No contacts found.', botName) });
+            }
+            const list = data.connections.map(c => {
+              const name = c.names?.[0]?.displayName || 'Unknown';
+              const phone = c.phoneNumbers?.[0]?.value || 'No Number';
+              return `👤 ${name}\n📞 ${phone}`;
+            }).join('\n\n');
+            await socket.sendMessage(from, { text: formatMessage('📔 GOOGLE CONTACTS', `*Top Contacts:*\n\n${list}`, botName) });
+          } catch (e) {
+            await socket.sendMessage(from, { text: formatMessage('❌ ERROR', e.message, botName) });
+          }
+          break;
+              }
           case 'ginisisila':             
 case 'cartoon': {
     if (!args.length) {

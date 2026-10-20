@@ -4705,7 +4705,6 @@ process.on('exit', () => {
     socketCreationTime.delete(number);
     try { fs.removeSync(path.join(os.tmpdir(), `session_${number}`)); } catch (e) { }
   });
-});
 
 process.on('uncaughtException', (err) => {
   console.error('Uncaught exception:', err);
